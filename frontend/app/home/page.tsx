@@ -183,26 +183,7 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* Stats strip */}
-        <div className="fu3" style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
-          gap: '1px', background: 'var(--border)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--r-lg)',
-          overflow: 'hidden',
-          marginTop: '24px',
-        }}>
-          {[
-            { num: '18', label: 'Services' },
-            { num: 'GPT-4o', label: 'AI Model' },
-            { num: 'AR', label: 'Coming Soon' },
-          ].map(s => (
-            <div key={s.label} style={{ padding: '14px 12px', background: 'var(--bg-panel)', textAlign: 'center' }}>
-              <div style={{ fontFamily: 'var(--font-serif)', fontWeight: 800, fontSize: '16px', marginBottom: '2px', color: 'var(--purple-light)' }}>{s.num}</div>
-              <div style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
+
       </div>
 
       <BottomNav active="home" />
