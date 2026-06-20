@@ -26,6 +26,13 @@ export default function SignupPage() {
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !password.trim()) return;
+    
+    const phoneDigits = phone.slice(4).trim();
+    if (phoneDigits.length !== 10) {
+      setError('Phone number must be exactly 10 digits.');
+      return;
+    }
+
     setError('');
     setLoading(true);
     try {
@@ -160,9 +167,10 @@ export default function SignupPage() {
                 onChange={e => {
                   let val = e.target.value;
                   if (!val.startsWith('+91 ')) val = '+91 ' + val.replace(/^\+91 ?/, '');
-                  setPhone(val);
+                  const digitsOnly = val.slice(4).replace(/\D/g, '').slice(0, 10);
+                  setPhone('+91 ' + digitsOnly);
                 }}
-                placeholder="+1 (555) 000-0000"
+                placeholder="+91 9876543210"
                 style={{ background: 'rgba(255,255,255,0.03)' }}
               />
             </div>

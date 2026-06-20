@@ -23,8 +23,7 @@ export class AuthService {
       .from('profiles')
       .insert({ 
         id: data.user.id, 
-        name: dto.name, 
-        email: dto.email, 
+        full_name: dto.name, 
         role: 'admin',
         store_name: dto.store_name,
         phone: dto.phone
