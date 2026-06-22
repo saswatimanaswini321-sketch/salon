@@ -6,6 +6,7 @@ export class CreateUserDto {
   @IsString() name: string;
   @IsEmail() email: string;
   @IsString() @MinLength(8) password: string;
+  @IsString() phone: string;
   @IsIn(['admin', 'barber']) role: 'admin' | 'barber';
 }
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';

@@ -23,11 +23,15 @@ export class AdminService {
     if (error) throw new ConflictException(error.message);
 
     // Create profile
-    const { data: profile } = await this.supabase.db
+    const { data: profile, error: profileError } = await this.supabase.db
       .from('profiles')
-      .insert({ id: data.user.id, name: dto.name, email: dto.email, role: dto.role })
+      .insert({ id: data.user.id, full_name: dto.name, role: dto.role, phone: (dto as any).phone })
       .select()
       .single();
+
+    if (profileError) {
+      console.error('Failed to insert profile:', profileError);
+    }
 
     return profile;
   }
@@ -36,6 +40,7 @@ export class AdminService {
     const { data } = await this.supabase.db
       .from('profiles')
       .select('*')
+      .eq('role', 'barber')
       .order('created_at', { ascending: false });
     return data ?? [];
   }

@@ -67,4 +67,18 @@ export class AuthService {
       .single();
     return data;
   }
+
+  async resetPassword(email: string, newPassword: string) {
+    // Find user by email using admin API
+    const { data: users, error } = await this.supabase.db.auth.admin.listUsers();
+    if (error) throw new Error('Failed to find user');
+    const user = users.users.find(u => u.email === email);
+    if (!user) throw new Error('User not found');
+    // Update password via admin API
+    const { error: updateError } = await this.supabase.db.auth.admin.updateUserById(user.id, {
+      password: newPassword,
+    });
+    if (updateError) throw new Error(updateError.message);
+    return { success: true };
+  }
 }

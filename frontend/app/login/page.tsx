@@ -27,7 +27,7 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      // Use native Supabase Auth
+      // Use native Supabase Auth because the backend strictly expects Supabase JWT tokens
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password: password
@@ -36,16 +36,19 @@ export default function LoginPage() {
       if (error) throw error;
       
       if (data.session && data.user) {
-        // Map Supabase user to our internal Profile format
-        const profile = {
+        // Fetch profile to get role
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+        
+        const userProfile = {
           id: data.user.id,
-          role: data.user.user_metadata.role || 'barber',
-          name: data.user.user_metadata.full_name || data.user.email?.split('@')[0] || 'Barber',
+          role: profile?.role || 'barber',
+          name: profile?.full_name || data.user.email?.split('@')[0] || 'Barber',
           email: data.user.email || '',
           created_at: data.user.created_at
         };
         saveAuth(data.session.access_token, profile);
         localStorage.setItem('show_welcome', 'true');
+        saveAuth(data.session.access_token, userProfile);
         router.replace('/home');
       }
     } catch (err: any) {
@@ -156,7 +159,12 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="label">Password</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label className="label">Password</label>
+                <Link href="/forgot-password" style={{ fontSize: '12px', color: 'var(--purple-light)', textDecoration: 'none', marginBottom: '8px', display: 'block' }}>
+                  Forgot Password?
+                </Link>
+              </div>
               <div style={{ position: 'relative' }}>
                 <input
                   type={show ? 'text' : 'password'}

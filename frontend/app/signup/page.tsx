@@ -45,7 +45,7 @@ export default function SignupPage() {
         password: password
       });
 
-      // 2. Log them in directly to get the session
+      // 2. Log them in directly to get the Supabase session
       const { data, error: loginError } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password: password
@@ -116,7 +116,7 @@ export default function SignupPage() {
             marginBottom: '8px',
             fontWeight: 400
           }}>
-            Salon Owner Registration
+            Admin Registration
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>
             Create your admin portal

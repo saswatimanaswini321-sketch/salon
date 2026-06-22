@@ -14,7 +14,7 @@ export default function UsersPage() {
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'barber' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', phone: '+91 ', role: 'barber' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const user = typeof window !== 'undefined' ? getUser() : null;
@@ -36,13 +36,20 @@ export default function UsersPage() {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name || !form.email || !form.password) return;
+    
+    const phoneDigits = form.phone.replace('+91 ', '');
+    if (phoneDigits.length !== 10) {
+      setError('Phone number must be exactly 10 digits.');
+      return;
+    }
+
     setSaving(true);
     setError('');
     try {
       const newUser = await api.admin.createUser(form);
       setUsers(prev => [newUser, ...prev]);
       setShowForm(false);
-      setForm({ name: '', email: '', password: '', role: 'barber' });
+      setForm({ name: '', email: '', password: '', phone: '+91 ', role: 'barber' });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to create user');
     } finally { setSaving(false); }
@@ -87,15 +94,17 @@ export default function UsersPage() {
                 <input className="input" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="email@salon.com" required />
               </div>
               <div>
-                <label className="label">Temporary Password</label>
-                <input className="input" type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Min 8 characters" minLength={8} required />
+                <label className="label">Phone Number</label>
+                <input className="input" type="tel" value={form.phone} onChange={e => {
+                  let val = e.target.value;
+                  if (!val.startsWith('+91 ')) val = '+91 ';
+                  const digits = val.replace('+91 ', '').replace(/\D/g, '').slice(0, 10);
+                  setForm(f => ({ ...f, phone: '+91 ' + digits }));
+                }} placeholder="+91 9876543210" required />
               </div>
               <div>
-                <label className="label">Role</label>
-                <select className="input" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>
-                  <option value="barber">Barber / Stylist</option>
-                  <option value="admin">Admin</option>
-                </select>
+                <label className="label">Temporary Password</label>
+                <input className="input" type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Min 8 characters" minLength={8} required />
               </div>
               {error && <div className="error-box">{error}</div>}
               <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
@@ -108,13 +117,17 @@ export default function UsersPage() {
           </div>
         )}
 
-        {loading ? (
+        {!showForm && (
+          loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
             <Loader2 size={24} className="spin" color="var(--purple)" />
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {users.map((u, i) => (
+            {users.map((u, i) => {
+              const displayName = u.name || (u as any).full_name || 'Staff Member';
+              const displayContact = u.email || (u as any).phone || 'No contact info';
+              return (
               <div key={u.id} className="panel" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', animation: `fadeUp 0.3s var(--ease) ${i * 0.05}s both` }}>
                 <div style={{
                   width: '40px', height: '40px', borderRadius: '50%',
@@ -122,11 +135,11 @@ export default function UsersPage() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '16px', fontWeight: 700, flexShrink: 0,
                 }}>
-                  {u.name?.charAt(0)?.toUpperCase()}
+                  {displayName.charAt(0).toUpperCase()}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, color: 'var(--white)', marginBottom: '2px' }}>{u.name}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{u.email}</div>
+                  <div style={{ fontWeight: 600, color: 'var(--white)', marginBottom: '2px' }}>{displayName}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{displayContact}</div>
                 </div>
                 <span className={`badge ${u.role === 'admin' ? 'badge-amber' : 'badge-purple'}`} style={{ textTransform: 'capitalize' }}>{u.role}</span>
                 {u.id !== user?.id && (
@@ -139,7 +152,8 @@ export default function UsersPage() {
                   </button>
                 )}
               </div>
-            ))}
+              );
+            })}
 
             {!loading && users.length === 0 && (
               <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)', fontSize: '13px' }}>
@@ -147,6 +161,7 @@ export default function UsersPage() {
               </div>
             )}
           </div>
+        )
         )}
       </div>
 

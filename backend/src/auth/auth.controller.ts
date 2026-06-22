@@ -1,7 +1,8 @@
-import { Controller, Post, Body, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { MailService } from './mail.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional, Length } from 'class-validator';
 
 export class LoginDto {
   @IsEmail()
@@ -32,9 +33,30 @@ export class SignupDto {
   password: string;
 }
 
+export class ForgotPasswordDto {
+  @IsEmail()
+  email: string;
+}
+
+export class ResetPasswordDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @Length(6, 6)
+  otp: string;
+
+  @IsString()
+  @MinLength(8)
+  newPassword: string;
+}
+
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly mailService: MailService,
+  ) {}
 
   @Post('login')
   login(@Body() dto: LoginDto) {
@@ -44,6 +66,22 @@ export class AuthController {
   @Post('signup')
   signup(@Body() dto: SignupDto) {
     return this.authService.signup(dto);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    const otp = this.mailService.generateOtp();
+    this.mailService.storeOtp(dto.email, otp);
+    await this.mailService.sendOtpEmail(dto.email, otp);
+    return { message: 'OTP sent successfully' };
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    const valid = this.mailService.verifyOtp(dto.email, dto.otp);
+    if (!valid) throw new BadRequestException('Invalid or expired OTP. Please request a new one.');
+    await this.authService.resetPassword(dto.email, dto.newPassword);
+    return { message: 'Password reset successfully' };
   }
 
   @Get('me')

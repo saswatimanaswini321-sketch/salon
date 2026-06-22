@@ -29,11 +29,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       throw new UnauthorizedException('Invalid token');
     }
     
+    // Fetch profile to get correct role
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
+
     // Attach user to request for use in controllers
     req.user = {
       sub: data.user.id,
       email: data.user.email,
-      role: data.user.user_metadata?.role || 'barber',
+      role: profile?.role || 'barber',
     };
     
     return true;
