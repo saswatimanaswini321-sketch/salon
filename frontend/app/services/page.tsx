@@ -52,15 +52,19 @@ export default function ServicesPage() {
 
   useEffect(() => {
     const auth = isAuthenticated();
+    
+    if (!auth) {
+      router.replace('/login');
+      return;
+    }
+
     setIsAuth(auth);
     setCheckingAuth(false);
 
-    if (auth) {
-      const profile = getUser();
-      if (profile) {
-        setUserName(profile.name || 'John Doe');
-        setUserRole(profile.role === 'admin' ? 'Owner' : 'Barber');
-      }
+    const profile = getUser();
+    if (profile) {
+      setUserName(profile.name || 'John Doe');
+      setUserRole(profile.role === 'admin' ? 'Owner' : 'Barber');
     }
 
     // Load services dynamically
