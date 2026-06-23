@@ -44,10 +44,10 @@ export default function ServicesPage() {
     if (!isAuthenticated()) { router.replace('/login'); return; }
     const state = getConsultState();
     if (!state.gender) { router.replace('/home'); return; }
-    setSelected(state.selectedServiceIds);
+    setSelected(state.selectedServiceIds || []);
 
     api.services.list(state.gender)
-      .then(res => setServices(res.length ? res : MOCK_SERVICES[state.gender ?? 'men']))
+      .then(res => setServices(res && res.length ? res : MOCK_SERVICES[state.gender ?? 'men']))
       .catch(() => setServices(MOCK_SERVICES[state.gender ?? 'men']))
       .finally(() => setLoading(false));
   }, [router]);

@@ -135,7 +135,7 @@ export default function HomePage() {
               <button onClick={scrollToGenderSelect} className="home-btn-gold">
                 New Consultation <Sparkles size={14} />
               </button>
-              <Link href="/#services" style={{ textDecoration: 'none' }}>
+              <Link href="/services" style={{ textDecoration: 'none' }}>
                 <button className="home-btn-outline">
                   View Services <ArrowRight size={14} />
                 </button>

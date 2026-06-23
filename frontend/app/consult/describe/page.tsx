@@ -70,7 +70,7 @@ export default function DescribePage() {
   useEffect(() => {
     if (!isAuthenticated()) { router.replace('/login'); return; }
     const s = getConsultState();
-    if (!s.gender || s.selectedServiceIds.length === 0) { router.replace('/home'); return; }
+    if (!s.gender || !s.selectedServiceIds || s.selectedServiceIds.length === 0) { router.replace('/home'); return; }
     setState(s);
     if (s.description) setDescription(s.description);
   }, [router]);

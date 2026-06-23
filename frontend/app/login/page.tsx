@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, Loader2, ArrowRight, AlertCircle, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '@/lib/api';
 import { saveAuth, isAuthenticated } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
@@ -16,9 +17,23 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showRedirectAlert, setShowRedirectAlert] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated()) router.replace('/home');
+    if (isAuthenticated()) {
+      router.replace('/home');
+      return;
+    }
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('reason') === 'auth_required') {
+        setShowRedirectAlert(true);
+        // Clear parameter from address bar
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+      }
+    }
   }, [router]);
 
   async function handleLogin(e: React.FormEvent) {
@@ -213,6 +228,89 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
+      {/* Alert Redirect Popup Modal */}
+    <AnimatePresence>
+        {showRedirectAlert && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: 'spring', damping: 15 }}
+              style={{
+                background: 'rgba(15, 15, 20, 0.95)',
+                border: '1px solid rgba(197, 157, 95, 0.3)',
+                borderRadius: '12px',
+                padding: '30px 24px',
+                maxWidth: '380px',
+                width: 'calc(100% - 40px)',
+                textAlign: 'center',
+                position: 'relative',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+              }}
+            >
+              <button
+                onClick={() => setShowRedirectAlert(false)}
+                style={{
+                  position: 'absolute',
+                  top: '16px',
+                  right: '16px',
+                  background: 'none',
+                  border: 'none',
+                  color: 'rgba(255, 255, 255, 0.4)',
+                  cursor: 'pointer',
+                }}
+              >
+                <X size={18} />
+              </button>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: 'rgba(197, 157, 95, 0.1)',
+                color: '#c59d5f',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 16px',
+              }}>
+                <AlertCircle size={24} />
+              </div>
+              <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
+                Authentication Required
+              </h2>
+              <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '13px', lineHeight: 1.5, marginBottom: '24px' }}>
+                We need to login first to access the premium services catalog.
+              </p>
+              <button
+                onClick={() => setShowRedirectAlert(false)}
+                className="btn btn-primary"
+                style={{
+                  width: '100%',
+                  background: '#c59d5f',
+                  color: '#000000',
+                  fontWeight: 600,
+                  border: 'none',
+                  justifyContent: 'center',
+                  height: '44px'
+                }}
+              >
+                Okay, I understand
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

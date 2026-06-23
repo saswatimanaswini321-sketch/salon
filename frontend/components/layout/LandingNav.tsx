@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Menu, X, Scissors } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { isAuthenticated } from '@/lib/auth';
 
 interface LandingNavProps {
   /** Which page is currently active — used to highlight the correct nav link */
@@ -14,6 +15,11 @@ interface LandingNavProps {
 export default function LandingNav({ activePage, rightSlot }: LandingNavProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(isAuthenticated());
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,7 +51,7 @@ export default function LandingNav({ activePage, rightSlot }: LandingNavProps) {
     <nav className={`landing-nav ${scrolled ? 'scrolled' : ''}`}>
       <div className="landing-nav-container">
         {/* Left: Brand logo + name */}
-        <Link href="/" className="landing-nav-left">
+        <Link href={isLoggedIn ? "/home" : "/"} className="landing-nav-left">
           <div className="landing-nav-logo-icon">
             <Scissors size={16} />
           </div>
@@ -54,8 +60,8 @@ export default function LandingNav({ activePage, rightSlot }: LandingNavProps) {
 
         {/* Center: Navigation links — hidden on mobile, shown on desktop */}
         <div className="landing-nav-links">
-          <Link href="/" style={linkStyle('home')}>Home</Link>
-          <Link href="/#services" style={linkStyle('services')}>Services</Link>
+          <Link href={isLoggedIn ? "/home" : "/"} style={linkStyle('home')}>Home</Link>
+          <Link href="/services" style={linkStyle('services')}>Services</Link>
           <Link href="/#team" style={linkStyle('team')}>Team</Link>
           <Link href="/contact" style={linkStyle('contact')}>Contact</Link>
         </div>
@@ -85,8 +91,8 @@ export default function LandingNav({ activePage, rightSlot }: LandingNavProps) {
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
         <div className="landing-mobile-menu">
-          <Link href="/" onClick={() => setMobileMenuOpen(false)} className="landing-mobile-menu-link">Home</Link>
-          <Link href="/#services" onClick={() => setMobileMenuOpen(false)} className="landing-mobile-menu-link">Services</Link>
+          <Link href={isLoggedIn ? "/home" : "/"} onClick={() => setMobileMenuOpen(false)} className="landing-mobile-menu-link">Home</Link>
+          <Link href="/services" onClick={() => setMobileMenuOpen(false)} className="landing-mobile-menu-link">Services</Link>
           <Link href="/#team" onClick={() => setMobileMenuOpen(false)} className="landing-mobile-menu-link">Team</Link>
           <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="landing-mobile-menu-link">Contact</Link>
           {rightSlot && (
