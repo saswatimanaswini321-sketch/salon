@@ -92,12 +92,19 @@ export default function SignupPage() {
         backgroundImage: 'url(/hero.png)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        opacity: 0.3,
+        opacity: 0.4,
+        filter: 'blur(8px)',
         zIndex: 0,
         pointerEvents: 'none',
       }} />
 
-      <div style={{ position: 'absolute', inset: 0, background: 'var(--bg-panel)', zIndex: 1 }} />
+      <div style={{ 
+        position: 'absolute', 
+        inset: 0, 
+        background: 'linear-gradient(to right, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.9) 100%)', 
+        zIndex: 1,
+        pointerEvents: 'none',
+      }} />
 
       <Link href="/" style={{
         position: 'absolute',
