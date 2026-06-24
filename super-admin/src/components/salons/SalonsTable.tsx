@@ -153,7 +153,7 @@ export default function SalonsTable({
                     </div>
                     <div>
                       <div className="font-bold text-[15px] text-gray-900 leading-tight">
-                        <Link href={`/salons/${salon.id}`} className="hover:text-indigo-600 transition-colors">
+                        <Link href={`/salons/${salon.id}`} className="hover:text-[#1877f2] transition-colors">
                           {salon.name}
                         </Link>
                       </div>
@@ -184,13 +184,13 @@ export default function SalonsTable({
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   <div className="flex items-center justify-end gap-2 relative">
                     <Link href={`/salons/${salon.id}`}>
-                      <button className="h-8 w-8 rounded border border-gray-200 flex items-center justify-center text-gray-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition-colors">
+                      <button className="h-8 w-8 rounded border border-gray-200 flex items-center justify-center text-gray-400 hover:text-[#1877f2] hover:border-blue-200 hover:bg-blue-50 transition-colors">
                         <Eye className="h-4 w-4" />
                       </button>
                     </Link>
                     <button 
                       onClick={() => onEdit(salon)}
-                      className="h-8 w-8 rounded border border-gray-200 flex items-center justify-center text-gray-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition-colors"
+                      className="h-8 w-8 rounded border border-gray-200 flex items-center justify-center text-gray-400 hover:text-[#1877f2] hover:border-blue-200 hover:bg-blue-50 transition-colors"
                     >
                       <Edit2 className="h-4 w-4" />
                     </button>
@@ -264,7 +264,7 @@ export default function SalonsTable({
                 onClick={() => onPageChange(num)}
                 className={`h-8 w-8 rounded flex items-center justify-center font-medium text-sm transition-colors ${
                   currentPage === num 
-                    ? 'border border-[#8b8df2] text-[#8b8df2]' 
+                    ? 'bg-[#1877f2] text-white' 
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
@@ -292,7 +292,7 @@ export default function SalonsTable({
             <select 
               value={itemsPerPage}
               onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-              className="appearance-none flex items-center gap-2 h-8 pl-3 pr-8 rounded border border-gray-200 text-[13px] font-medium text-gray-600 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer"
+              className="appearance-none flex items-center gap-2 h-8 pl-3 pr-8 rounded border border-gray-200 text-[13px] font-medium text-gray-600 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#1877f2] transition-colors cursor-pointer"
             >
               <option value={5}>5 per page</option>
               <option value={10}>10 per page</option>

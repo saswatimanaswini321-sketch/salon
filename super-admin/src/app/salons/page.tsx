@@ -1,188 +1,274 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { Plus, Search, MoreVertical, Edit, Trash2, ShieldAlert, CheckCircle } from "lucide-react";
-import SalonModal from "@/components/salons/SalonModal";
+import React, { useState, useMemo } from 'react';
+import { Plus, Search, ChevronDown, Calendar, Filter, X } from 'lucide-react';
+import SalonsTable from '../../components/salons/SalonsTable';
+import EditSalonModal, { SalonFormData } from '../../components/salons/EditSalonModal';
+import ConfirmationDialog from '../../components/ui/ConfirmationDialog';
 
-interface Salon {
-  id: string;
-  name: string;
-  ownerId: string;
-  subscriptionId: string;
-  status: "PENDING" | "ACTIVE" | "SUSPENDED";
-  branches: any[];
-}
+// Mock data
+const MOCK_SALONS = [
+  { id: '1', name: 'Elite Scissors', ownerName: 'John Doe', email: 'john@elitescissors.com', mobile: '+1234567890', subscriptionId: 'premium', status: 'ACTIVE' as const, createdAt: '2026-06-20T10:00:00Z', userId: 'user_123' },
+  { id: '2', name: 'Cuts & Fades', ownerName: 'Jane Smith', email: 'jane@cutsfades.com', mobile: '+1987654321', subscriptionId: 'starter', status: 'PENDING' as const, createdAt: '2026-06-22T14:30:00Z', userId: 'user_456' },
+  { id: '3', name: 'The Glamour Room', ownerName: 'Mike Johnson', email: 'mike@glamourroom.com', mobile: '+1122334455', subscriptionId: 'enterprise', status: 'SUSPENDED' as const, createdAt: '2026-05-15T09:15:00Z', userId: 'user_789' },
+  { id: '4', name: 'Urban Edge', ownerName: 'Sarah Wilson', email: 'sarah@urbanedge.com', mobile: '+1098765432', subscriptionId: 'premium', status: 'ACTIVE' as const, createdAt: '2026-05-10T09:15:00Z', userId: 'user_321' },
+  { id: '5', name: 'Blade Masters', ownerName: 'David Brown', email: 'david@blademasters.com', mobile: '+1234987650', subscriptionId: 'starter', status: 'ACTIVE' as const, createdAt: '2026-04-28T09:15:00Z', userId: 'user_654' },
+  { id: '6', name: 'Classic Cuts', ownerName: 'Tom Hanks', email: 'tom@classiccuts.com', mobile: '+1122446688', subscriptionId: 'starter', status: 'ACTIVE' as const, createdAt: '2026-03-12T09:15:00Z', userId: 'user_999' },
+  { id: '7', name: 'Modern Salon', ownerName: 'Emma Stone', email: 'emma@modernsalon.com', mobile: '+1122446699', subscriptionId: 'enterprise', status: 'PENDING' as const, createdAt: '2026-06-23T09:15:00Z', userId: 'user_888' },
+];
 
 export default function SalonsPage() {
-  const [salons, setSalons] = useState<Salon[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [salons, setSalons] = useState(MOCK_SALONS);
+  
+  // Search and Filter States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All Status');
+  const [planFilter, setPlanFilter] = useState('All Plans');
+  const [sortOrder, setSortOrder] = useState('Newest First');
+  
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const fetchSalons = async () => {
-    setIsLoading(true);
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-      const token = "mock-jwt-token";
-      const res = await axios.get(`${apiUrl}/admin/salons`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setSalons(res.data);
-    } catch (err) {
-      console.error("Failed to fetch salons:", err);
-      // Fallback mock data
-      setSalons([
-        { id: "1", name: "Elite Scissors", ownerId: "user_123", subscriptionId: "Premium", status: "ACTIVE", branches: [] },
-        { id: "2", name: "Cuts & Fades", ownerId: "user_456", subscriptionId: "Starter", status: "PENDING", branches: [] },
-        { id: "3", name: "The Glamour Room", ownerId: "user_789", subscriptionId: "Enterprise", status: "SUSPENDED", branches: [] },
-      ]);
-    } finally {
-      setIsLoading(false);
+  // Modal States
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedSalon, setSelectedSalon] = useState<any>(null);
+  
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<'suspend' | 'delete' | null>(null);
+
+  // Apply filters, search, and sorting
+  const filteredAndSortedSalons = useMemo(() => {
+    let result = [...salons];
+
+    if (searchQuery.trim() !== '') {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(s => 
+        s.name.toLowerCase().includes(q) || 
+        s.ownerName.toLowerCase().includes(q) ||
+        s.email.toLowerCase().includes(q)
+      );
     }
-  };
 
-  useEffect(() => {
-    fetchSalons();
-  }, []);
-
-  const handleStatusChange = async (id: string, newStatus: string) => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-      const token = "mock-jwt-token";
-      await axios.patch(`${apiUrl}/admin/salons/${id}/status`, { status: newStatus }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      // Optimistic update
-      setSalons(salons.map(s => s.id === id ? { ...s, status: newStatus as any } : s));
-    } catch (err) {
-      console.error("Failed to update status", err);
-      alert("Failed to update status (Backend might not be running)");
-      // Still do optimistic update for demo purposes
-      setSalons(salons.map(s => s.id === id ? { ...s, status: newStatus as any } : s));
+    if (statusFilter !== 'All Status') {
+      result = result.filter(s => s.status.toLowerCase() === statusFilter.toLowerCase());
     }
-  };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to permanently delete this salon?")) return;
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-      const token = "mock-jwt-token";
-      await axios.delete(`${apiUrl}/admin/salons/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setSalons(salons.filter(s => s.id !== id));
-    } catch (err) {
-      console.error("Failed to delete salon", err);
-      alert("Failed to delete salon (Backend might not be running)");
-      setSalons(salons.filter(s => s.id !== id));
+    if (planFilter !== 'All Plans') {
+      result = result.filter(s => s.subscriptionId.toLowerCase() === planFilter.toLowerCase());
     }
-  };
 
-  const filteredSalons = salons.filter(s => 
-    s.name.toLowerCase().includes(searchQuery.toLowerCase())
+    result.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      if (sortOrder === 'Newest First') return dateB - dateA;
+      if (sortOrder === 'Oldest First') return dateA - dateB;
+      return 0;
+    });
+
+    return result;
+  }, [salons, searchQuery, statusFilter, planFilter, sortOrder]);
+
+  const totalItems = filteredAndSortedSalons.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
+  if (currentPage > totalPages && totalPages > 0) {
+    setCurrentPage(totalPages);
+  } else if (totalPages === 0 && currentPage !== 1) {
+    setCurrentPage(1);
+  }
+
+  const paginatedSalons = filteredAndSortedSalons.slice(
+    (currentPage - 1) * itemsPerPage, 
+    currentPage * itemsPerPage
   );
 
+  const handleAddSalon = () => {
+    setSelectedSalon(null);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSalon = (salon: any) => {
+    setSelectedSalon(salon);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveSalon = (data: SalonFormData) => {
+    if (selectedSalon) {
+      setSalons(prev => prev.map(s => s.id === selectedSalon.id ? { ...s, ...data } : s));
+    } else {
+      setSalons(prev => [...prev, { ...data, id: `uuid-${Date.now()}`, status: 'ACTIVE', createdAt: new Date().toISOString(), userId: `user_${Math.floor(Math.random() * 1000)}` }]);
+    }
+    setIsEditModalOpen(false);
+  };
+
+  const handleSuspendClick = (salon: any) => {
+    setSelectedSalon(salon);
+    setConfirmAction('suspend');
+    setIsConfirmOpen(true);
+  };
+
+  const handleDeleteClick = (salon: any) => {
+    setSelectedSalon(salon);
+    setConfirmAction('delete');
+    setIsConfirmOpen(true);
+  };
+
+  const executeConfirmAction = () => {
+    if (!selectedSalon) return;
+    if (confirmAction === 'suspend') {
+      const newStatus = selectedSalon.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+      setSalons(prev => prev.map(s => s.id === selectedSalon.id ? { ...s, status: newStatus } : s));
+    } else if (confirmAction === 'delete') {
+      setSalons(prev => prev.filter(s => s.id !== selectedSalon.id));
+    }
+    setIsConfirmOpen(false);
+    setSelectedSalon(null);
+  };
+
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Salons & Tenants</h1>
-          <p className="text-gray-500 mt-1">Manage B2B clients, their subscriptions and platform access.</p>
-        </div>
+    <div className="p-6 max-w-6xl mx-auto space-y-6">
+      
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl font-bold text-gray-900">Salons & Tenants</h1>
         <button 
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 font-medium transition"
+          onClick={handleAddSalon}
+          className="inline-flex items-center justify-center gap-2 bg-[#1877f2] hover:bg-[#166fe5] text-white px-5 py-2.5 rounded-full transition-all shadow-sm font-semibold text-sm"
         >
-          <Plus className="w-4 h-4 mr-2" />
-          Add New Salon
+          <Plus className="w-4 h-4" />
+          Add Salon
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50/50">
-          <div className="relative w-64">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+      {/* Main Container */}
+      <div className="bg-white rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.1)] border border-gray-100 flex flex-col h-[700px] overflow-hidden">
+        
+        {/* Filters Bar Row */}
+        <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row items-center gap-3 w-full bg-white z-10 shadow-sm">
+          
+          <div className="relative flex-1 w-full min-w-[200px]">
+            <Search className="w-4 h-4 absolute left-3 top-2.5 text-gray-400" />
             <input 
               type="text" 
-              placeholder="Search salons..." 
+              placeholder="Search by salon or owner name..."
+              className="w-full pl-9 pr-4 py-2 bg-[#f0f2f5] border-none rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#1877f2] font-medium text-gray-700 placeholder-gray-400"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+            }}
             />
           </div>
-          <div className="text-sm text-gray-500">
-            Total: {salons.length}
+
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Filter className="w-4 h-4 text-gray-400" />
+              </div>
+              <select 
+                value={statusFilter}
+                onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+                className="appearance-none pl-9 pr-8 py-2 bg-[#f0f2f5] border-none rounded-full text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1877f2] cursor-pointer"
+              >
+                <option value="All Status">All Status</option>
+                <option value="ACTIVE">Active</option>
+                <option value="PENDING">Pending</option>
+                <option value="SUSPENDED">Suspended</option>
+              </select>
+              <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
+            
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Filter className="w-4 h-4 text-gray-400" />
+              </div>
+              <select 
+                value={planFilter}
+                onChange={(e) => { setPlanFilter(e.target.value); setCurrentPage(1); }}
+                className="appearance-none pl-9 pr-8 py-2 bg-[#f0f2f5] border-none rounded-full text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1877f2] cursor-pointer"
+              >
+                <option value="All Plans">All Plans</option>
+                <option value="Premium">Premium</option>
+                <option value="Starter">Starter</option>
+                <option value="Enterprise">Enterprise</option>
+              </select>
+              <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
+
+            <div className="relative hidden md:block">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Calendar className="w-4 h-4 text-gray-400" />
+              </div>
+              <select 
+                value={sortOrder}
+                onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}
+                className="appearance-none pl-9 pr-8 py-2 bg-[#f0f2f5] border-none rounded-full text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1877f2] cursor-pointer"
+              >
+                <option value="Newest First">Newest</option>
+                <option value="Oldest First">Oldest</option>
+              </select>
+              <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
+
+            {(searchQuery || statusFilter !== 'All Status' || planFilter !== 'All Plans') && (
+              <button 
+                onClick={() => {
+                  setSearchQuery('');
+                  setStatusFilter('All Status');
+                  setPlanFilter('All Plans');
+                  setSortOrder('Newest First');
+                  setCurrentPage(1);
+                }}
+                className="p-2 text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 rounded-full transition-colors"
+                title="Clear Filters"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 text-gray-600 text-sm border-b border-gray-200">
-                <th className="p-4 font-semibold">Salon Name</th>
-                <th className="p-4 font-semibold">Owner ID</th>
-                <th className="p-4 font-semibold">Plan</th>
-                <th className="p-4 font-semibold">Status</th>
-                <th className="p-4 font-semibold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-gray-500">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-                  </td>
-                </tr>
-              ) : filteredSalons.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-gray-500">No salons found.</td>
-                </tr>
-              ) : (
-                filteredSalons.map((salon) => (
-                  <tr key={salon.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="p-4 font-medium text-gray-900">{salon.name}</td>
-                    <td className="p-4 text-gray-500 text-sm">{salon.ownerId}</td>
-                    <td className="p-4">
-                      <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">
-                        {salon.subscriptionId}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      {salon.status === 'ACTIVE' && <span className="inline-flex items-center px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full"><CheckCircle className="w-3 h-3 mr-1" /> Active</span>}
-                      {salon.status === 'PENDING' && <span className="inline-flex items-center px-2 py-1 bg-amber-50 text-amber-700 text-xs font-medium rounded-full">Pending</span>}
-                      {salon.status === 'SUSPENDED' && <span className="inline-flex items-center px-2 py-1 bg-red-50 text-red-700 text-xs font-medium rounded-full"><ShieldAlert className="w-3 h-3 mr-1" /> Suspended</span>}
-                    </td>
-                    <td className="p-4 text-right flex justify-end space-x-2">
-                      {salon.status !== 'ACTIVE' && (
-                        <button onClick={() => handleStatusChange(salon.id, 'ACTIVE')} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-md" title="Activate">
-                          <CheckCircle className="w-4 h-4" />
-                        </button>
-                      )}
-                      {salon.status === 'ACTIVE' && (
-                        <button onClick={() => handleStatusChange(salon.id, 'SUSPENDED')} className="p-1.5 text-amber-600 hover:bg-amber-50 rounded-md" title="Suspend">
-                          <ShieldAlert className="w-4 h-4" />
-                        </button>
-                      )}
-                      <button onClick={() => handleDelete(salon.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-md" title="Delete">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+        
+        {/* Table Area */}
+        <div className="flex-1 overflow-auto bg-white">
+          <SalonsTable 
+            data={paginatedSalons} 
+            onEdit={handleEditSalon}
+            onSuspendToggle={handleSuspendClick}
+            onDelete={handleDeleteClick}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            itemsPerPage={itemsPerPage}
+            onItemsPerPageChange={(val) => {
+              setItemsPerPage(val);
+              setCurrentPage(1);
+            }}
+            totalItems={totalItems}
+          />
         </div>
       </div>
 
-      <SalonModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSuccess={() => {
-          setIsModalOpen(false);
-          fetchSalons();
-        }}
+      {/* Modals */}
+      <EditSalonModal 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)} 
+        onSave={handleSaveSalon}
+        initialData={selectedSalon}
+      />
+
+      <ConfirmationDialog 
+        isOpen={isConfirmOpen}
+        onCancel={() => setIsConfirmOpen(false)}
+        onConfirm={executeConfirmAction}
+        title={confirmAction === 'delete' ? 'Delete Salon' : selectedSalon?.status === 'ACTIVE' ? 'Suspend Salon' : 'Reactivate Salon'}
+        description={
+          confirmAction === 'delete' 
+            ? `Are you sure you want to permanently delete ${selectedSalon?.name}? This action cannot be undone.`
+            : `Are you sure you want to ${selectedSalon?.status === 'ACTIVE' ? 'suspend' : 'reactivate'} ${selectedSalon?.name}?`
+        }
+        confirmText={confirmAction === 'delete' ? 'Delete Permanently' : selectedSalon?.status === 'ACTIVE' ? 'Suspend' : 'Reactivate'}
+        variant={confirmAction === 'delete' ? 'danger' : 'warning'}
       />
     </div>
   );
