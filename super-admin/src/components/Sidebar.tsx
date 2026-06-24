@@ -49,7 +49,7 @@ export default function Sidebar() {
             <LayoutDashboard className="w-5 h-5 mr-3 text-gray-500 group-hover:text-[#1877f2] transition" /> Dashboard
           </Link>
           <Link onClick={() => setIsOpen(false)} href="/salons" className="flex items-center px-3 py-2.5 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition group">
-            <Users className="w-5 h-5 mr-3 text-gray-500 group-hover:text-[#1877f2] transition" /> Salons & Tenants
+            <Users className="w-5 h-5 mr-3 text-gray-500 group-hover:text-[#1877f2] transition" /> Salon Managements
           </Link>
           <Link onClick={() => setIsOpen(false)} href="/subscriptions" className="flex items-center px-3 py-2.5 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition group">
             <CreditCard className="w-5 h-5 mr-3 text-gray-500 group-hover:text-[#1877f2] transition" /> Subscriptions

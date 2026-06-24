@@ -28,7 +28,7 @@ export default function SalonsPage() {
   
   // Pagination States
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   // Modal States
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -131,7 +131,7 @@ export default function SalonsPage() {
       
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">Salons & Tenants</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Salon Managements</h1>
         <button 
           onClick={handleAddSalon}
           className="inline-flex items-center justify-center gap-2 bg-[#1877f2] hover:bg-[#166fe5] text-white px-5 py-2.5 rounded-full transition-all shadow-sm font-semibold text-sm"
@@ -142,7 +142,7 @@ export default function SalonsPage() {
       </div>
 
       {/* Main Container */}
-      <div className="bg-white rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.1)] border border-gray-100 flex flex-col h-[700px] overflow-hidden">
+      <div className="bg-white rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.1)] border border-gray-100 flex flex-col h-auto overflow-hidden">
         
         {/* Filters Bar Row */}
         <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row items-center gap-3 w-full bg-white z-10 shadow-sm">
@@ -230,7 +230,7 @@ export default function SalonsPage() {
         </div>
         
         {/* Table Area */}
-        <div className="flex-1 overflow-auto bg-white">
+        <div className="w-full bg-white">
           <SalonsTable 
             data={paginatedSalons} 
             onEdit={handleEditSalon}
