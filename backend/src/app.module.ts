@@ -10,6 +10,7 @@ import { AdminModule } from './admin/admin.module';
 import { SupabaseModule } from './supabase/supabase.module';
 import { SalonsModule } from './salons/salons.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
     AdminModule,
     SalonsModule,
     SubscriptionsModule,
+    PrismaModule,
   ],
 })
 export class AppModule {}

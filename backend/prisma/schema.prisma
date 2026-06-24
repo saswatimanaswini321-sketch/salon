@@ -33,6 +33,9 @@ model Salon {
 
   subscription    Subscription? @relation(fields: [subscriptionId], references: [id])
   branches        Branch[]
+  aiLogs          AILog[]
+  apiUsage        APIUsage?
+  whiteLabel      WhiteLabelConfig?
 }
 
 model Branch {
@@ -46,3 +49,85 @@ model Branch {
 
   salon           Salon    @relation(fields: [salonId], references: [id], onDelete: Cascade)
 }
+
+// ==========================================
+// AI & SYSTEM CONFIGURATION
+// ==========================================
+
+model AIPrompt {
+  id              String   @id @default(uuid())
+  type            String   @unique // e.g., 'HAIR_STYLE', 'BEARD_STYLE', 'FACE_SHAPE'
+  promptText      String
+  updatedAt       DateTime @updatedAt
+}
+
+model SystemConfig {
+  id              String   @id @default(uuid())
+  key             String   @unique // e.g., 'SMTP_HOST', 'OPENAI_KEY', 'RAZORPAY_SECRET'
+  value           String   
+  isEncrypted     Boolean  @default(false)
+  updatedAt       DateTime @updatedAt
+}
+
+// ==========================================
+// AUDIT & API USAGE
+// ==========================================
+
+model AILog {
+  id              String   @id @default(uuid())
+  salonId         String
+  inputImage      String?
+  selectedStyle   String?
+  generatedResult String?
+  customerFeedback Int?    // 1 to 5 rating
+  createdAt       DateTime @default(now())
+
+  salon           Salon    @relation(fields: [salonId], references: [id], onDelete: Cascade)
+}
+
+model APIUsage {
+  id              String   @id @default(uuid())
+  salonId         String   @unique
+  tokensUsed      Int      @default(0)
+  apiCalls        Int      @default(0)
+  dailyLimit      Int      @default(100)
+  monthlyLimit    Int      @default(3000)
+  isBlocked       Boolean  @default(false)
+  updatedAt       DateTime @updatedAt
+
+  salon           Salon    @relation(fields: [salonId], references: [id], onDelete: Cascade)
+}
+
+// ==========================================
+// DYNAMIC CMS & WHITE LABEL
+// ==========================================
+
+model CMSPage {
+  id              String   @id @default(uuid())
+  pageName        String   @unique // e.g., 'HOME', 'PRICING', 'FAQ'
+  content         Json     // Stores structured page data
+  updatedAt       DateTime @updatedAt
+}
+
+model WhiteLabelConfig {
+  id              String   @id @default(uuid())
+  salonId         String   @unique
+  domain          String?  @unique
+  logoUrl         String?
+  primaryColor    String?
+  secondaryColor  String?
+  updatedAt       DateTime @updatedAt
+
+  salon           Salon    @relation(fields: [salonId], references: [id], onDelete: Cascade)
+}
+
+model NotificationTemplate {
+  id              String   @id @default(uuid())
+  type            String   // e.g., 'APPOINTMENT_REMINDER', 'BIRTHDAY_WISH'
+  channel         String   // e.g., 'SMS', 'EMAIL', 'WHATSAPP'
+  content         String
+  updatedAt       DateTime @updatedAt
+
+  @@unique([type, channel])
+}
+
