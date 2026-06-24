@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import { LayoutDashboard, Users, CreditCard, Settings2, BarChart3, Settings } from "lucide-react";
+import Sidebar from "@/components/Sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,28 +28,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex h-screen bg-gray-50 text-gray-900`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col md:flex-row h-screen bg-[#f0f2f5] text-[#1c1e21]`}
       >
-        {/* Sidebar */}
-        <aside className="w-64 bg-gray-900 text-white flex flex-col h-full shrink-0 shadow-lg">
-          <div className="p-6 text-2xl font-bold tracking-tight border-b border-gray-800">
-            AI Salon Admin
-          </div>
-          <nav className="flex-1 p-4 space-y-2">
-            <Link href="/dashboard" className="block px-4 py-3 rounded-md hover:bg-gray-800 transition">Dashboard</Link>
-            <Link href="/salons" className="block px-4 py-3 rounded-md hover:bg-gray-800 transition">Salons & Tenants</Link>
-            <Link href="/subscriptions" className="block px-4 py-3 rounded-md hover:bg-gray-800 transition">Subscriptions</Link>
-            <Link href="/ai-settings" className="block px-4 py-3 rounded-md hover:bg-gray-800 transition">AI Engine Settings</Link>
-            <Link href="/reports" className="block px-4 py-3 rounded-md hover:bg-gray-800 transition">Reports & Analytics</Link>
-            <Link href="/settings" className="block px-4 py-3 rounded-md hover:bg-gray-800 transition">Platform Settings</Link>
-          </nav>
-          <div className="p-4 border-t border-gray-800 text-sm text-gray-400">
-            Super Admin Account
-          </div>
-        </aside>
+        <Sidebar />
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-[#f0f2f5]">
           {children}
         </main>
       </body>
