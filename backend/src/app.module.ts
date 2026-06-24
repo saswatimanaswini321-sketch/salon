@@ -8,6 +8,8 @@ import { AiModule } from './ai/ai.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AdminModule } from './admin/admin.module';
 import { SupabaseModule } from './supabase/supabase.module';
+import { SalonsModule } from './salons/salons.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { SupabaseModule } from './supabase/supabase.module';
     AiModule,
     AnalyticsModule,
     AdminModule,
+    SalonsModule,
+    SubscriptionsModule,
   ],
 })
 export class AppModule {}
