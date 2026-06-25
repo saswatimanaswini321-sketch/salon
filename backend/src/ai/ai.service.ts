@@ -100,11 +100,11 @@ export class AiService {
     return allSuggestions;
   }
 
-  async generateDescription(gender: string, serviceIds: string[], photoUrl?: string) {
+  async generateDescription(gender: string, serviceIds: string[], photoUrl?: string, existingNotes?: string) {
     const services = await this.servicesService.findByIds(serviceIds);
     const serviceNames = services.map((s: { name: string }) => s.name);
 
-    const prompt = `You are a professional salon AI consultant.
+    let prompt = `You are a professional salon AI consultant.
 Customer gender: ${gender}
 Selected services: ${serviceNames.join(', ')}
 
@@ -113,6 +113,10 @@ Generate a concise, professional stylist notes description (2-3 sentences max) t
 Make it sound like a precise salon request or consultation note.
 For example: "Wants a textured crop with a mid skin fade to suit their oval face shape. Keep the beard lined up and clean with natural cheek lines."
 Do NOT include markdown, headings, prefixes like "Stylist notes:", or quotes. Return ONLY the plain text suggestion.`;
+
+    if (existingNotes) {
+      prompt += `\n\nCRITICAL INSTRUCTION: The user has already provided the following notes: "${existingNotes}". You MUST incorporate these notes into your generated description and expand on them professionally based on the photo and services.`;
+    }
 
     const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [];
 
@@ -141,8 +145,10 @@ Do NOT include markdown, headings, prefixes like "Stylist notes:", or quotes. Re
   private buildPrompt(session: { gender: string; description: string | null }, serviceNames: string[]): string {
     return `You are a professional salon AI consultant with expertise in hair, beauty, and grooming.
 Customer gender: ${session.gender}
-Barber/Stylist notes: "${session.description ?? 'No specific notes provided'}"
+Barber/Stylist notes (USER INPUT): "${session.description ?? 'No specific notes provided'}"
 ${session.gender === 'men' ? 'This is a male client visiting a professional barber/salon.' : 'This is a female client visiting a professional salon.'}
+
+CRITICAL INSTRUCTION: You MUST strictly follow the "Barber/Stylist notes (USER INPUT)". Tailor ALL 3 recommendations to accommodate the user's specific requests, face shape, hair type, and preferences mentioned in the notes. Do NOT ignore the notes. If the notes ask for a specific style (like "mullet", "low fade"), you must provide suggestions centered around that request.
 
 Provide exactly 3 professional recommendations for EACH of these services: ${serviceNames.join(', ')}
 

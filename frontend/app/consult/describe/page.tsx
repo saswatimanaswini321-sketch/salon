@@ -38,11 +38,13 @@ export default function DescribePage() {
       const res = await api.ai.generateDescription(
         state.gender ?? 'men',
         state.selectedServiceIds,
-        photo
+        photo,
+        description.trim() ? description.trim() : undefined
       );
 
       if (res && res.description) {
         finalDescription = res.description;
+        setDescription(finalDescription);
       }
 
       const formData = new FormData();

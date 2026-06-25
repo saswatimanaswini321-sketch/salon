@@ -107,6 +107,13 @@ export class SessionsService {
       .upload(fileName, file.buffer, { contentType: file.mimetype });
     if (error) throw new Error(error.message);
     
+    // Update the DB row
+    const { error: updateError } = await this.supabase.db
+      .from('sessions')
+      .update({ photo_url: fileName })
+      .eq('id', sessionId);
+    if (updateError) throw new Error(updateError.message);
+    
     // We return the raw filename path. The DB saves this.
     // When fetching, createSignedUrl will generate the secure link.
     return fileName;

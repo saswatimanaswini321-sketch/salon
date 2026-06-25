@@ -14,12 +14,13 @@ export class AiController {
 
   @Post('generate-description')
   generateDescription(
-    @Body() body: { gender: string; service_ids: string[]; photo?: string },
+    @Body() body: { gender: string; service_ids: string[]; photo?: string; description?: string },
   ) {
     return this.aiService.generateDescription(
       body.gender,
       body.service_ids,
       body.photo,
+      body.description,
     );
   }
 }

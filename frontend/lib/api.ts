@@ -74,10 +74,10 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ session_id: sessionId }),
       }),
-    generateDescription: (gender: string, serviceIds: string[], photo?: string) =>
+    generateDescription: (gender: string, serviceIds: string[], photo?: string, description?: string) =>
       request<{ description: string }>('/ai/generate-description', {
         method: 'POST',
-        body: JSON.stringify({ gender, service_ids: serviceIds, photo }),
+        body: JSON.stringify({ gender, service_ids: serviceIds, photo, description }),
       }),
   },
 
