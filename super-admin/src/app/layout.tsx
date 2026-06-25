@@ -26,8 +26,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
+        suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col md:flex-row h-screen bg-[#f0f2f5] text-[#1c1e21] overflow-x-hidden`}
       >
         <AuthProvider>
