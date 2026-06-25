@@ -2,10 +2,21 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LayoutDashboard, Users, CreditCard, Settings2, BarChart3, Settings, Menu, X } from "lucide-react";
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname() || "";
+
+  const navItems = [
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Salon Management", href: "/salons", icon: Users },
+    { name: "Subscriptions", href: "/subscriptions", icon: CreditCard },
+    { name: "AI Engine Settings", href: "/ai-settings", icon: Settings2 },
+    { name: "Reports & Analytics", href: "/reports", icon: BarChart3 },
+    { name: "Platform Settings", href: "/settings", icon: Settings },
+  ];
 
   return (
     <>
@@ -45,24 +56,26 @@ export default function Sidebar() {
           <span className="text-xl font-bold text-gray-900 tracking-tight">AI Salon</span>
         </div>
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          <Link onClick={() => setIsOpen(false)} href="/dashboard" className="flex items-center px-3 py-2.5 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition group">
-            <LayoutDashboard className="w-5 h-5 mr-3 text-gray-500 group-hover:text-[#1877f2] transition" /> Dashboard
-          </Link>
-          <Link onClick={() => setIsOpen(false)} href="/salons" className="flex items-center px-3 py-2.5 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition group">
-            <Users className="w-5 h-5 mr-3 text-gray-500 group-hover:text-[#1877f2] transition" /> Salon Managements
-          </Link>
-          <Link onClick={() => setIsOpen(false)} href="/subscriptions" className="flex items-center px-3 py-2.5 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition group">
-            <CreditCard className="w-5 h-5 mr-3 text-gray-500 group-hover:text-[#1877f2] transition" /> Subscriptions
-          </Link>
-          <Link onClick={() => setIsOpen(false)} href="/ai-settings" className="flex items-center px-3 py-2.5 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition group">
-            <Settings2 className="w-5 h-5 mr-3 text-gray-500 group-hover:text-[#1877f2] transition" /> AI Engine Settings
-          </Link>
-          <Link onClick={() => setIsOpen(false)} href="/reports" className="flex items-center px-3 py-2.5 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition group">
-            <BarChart3 className="w-5 h-5 mr-3 text-gray-500 group-hover:text-[#1877f2] transition" /> Reports & Analytics
-          </Link>
-          <Link onClick={() => setIsOpen(false)} href="/settings" className="flex items-center px-3 py-2.5 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition group">
-            <Settings className="w-5 h-5 mr-3 text-gray-500 group-hover:text-[#1877f2] transition" /> Platform Settings
-          </Link>
+          {navItems.map((item) => {
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <Link 
+                key={item.href}
+                onClick={() => setIsOpen(false)} 
+                href={item.href} 
+                className={`flex items-center px-3 py-2.5 rounded-lg font-medium transition group ${
+                  isActive 
+                    ? "bg-blue-50 text-blue-700" 
+                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                }`}
+              >
+                <item.icon className={`w-5 h-5 mr-3 transition ${
+                  isActive ? "text-blue-600" : "text-gray-500 group-hover:text-[#1877f2]"
+                }`} /> 
+                {item.name}
+              </Link>
+            );
+          })}
         </nav>
         <div className="p-4 border-t border-gray-100 flex flex-col gap-2">
           <div className="flex items-center mb-2">
