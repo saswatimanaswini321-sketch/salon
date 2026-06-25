@@ -11,6 +11,7 @@ import { SupabaseModule } from './supabase/supabase.module';
 import { SalonsModule } from './salons/salons.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { PlatformSettingsModule } from './platform-settings/platform-settings.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PrismaModule } from './prisma/prisma.module';
     SalonsModule,
     SubscriptionsModule,
     PrismaModule,
+    PlatformSettingsModule,
   ],
 })
 export class AppModule {}
