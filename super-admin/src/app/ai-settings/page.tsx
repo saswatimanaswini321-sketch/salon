@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { AiEngineApi, AiSetting, AiPrompt } from "@/lib/aiApi";
-import { Settings, MessageSquare, Image as ImageIcon, Save, Loader2, Key, Upload } from "lucide-react";
+import { Settings, MessageSquare, Image as ImageIcon, Save, Loader2, Key, Upload, ChevronDown } from "lucide-react";
 
 const STYLE_MAPPINGS: Record<string, Record<string, string[]>> = {
   MALE: {
@@ -188,14 +188,19 @@ export default function AISettings() {
 
               <div className="pt-4 border-t border-gray-100">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Default AI Model</label>
-                <select 
-                  value={settings.DEFAULT_AI_MODEL}
-                  onChange={(e) => setSettings({...settings, DEFAULT_AI_MODEL: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
-                >
-                  <option value="GPT4">OpenAI GPT-4o</option>
-                  <option value="CLAUDE">Anthropic Claude 3.5 Sonnet</option>
-                </select>
+                <div className="relative">
+                  <select 
+                    value={settings.DEFAULT_AI_MODEL}
+                    onChange={(e) => setSettings({...settings, DEFAULT_AI_MODEL: e.target.value})}
+                    className="appearance-none w-full px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm cursor-pointer pr-10"
+                  >
+                    <option value="GPT4">OpenAI GPT-4o</option>
+                    <option value="CLAUDE">Anthropic Claude 3.5 Sonnet</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </div>
               </div>
 
               <div className="pt-6">
@@ -257,10 +262,10 @@ export default function AISettings() {
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
               {/* Controls */}
-              <div className="space-y-5 bg-gray-50/50 p-4 sm:p-6 rounded-xl border border-gray-200 shadow-sm">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+              <div className="space-y-4 bg-gray-50 p-5 rounded-xl border border-gray-200">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                  <div className="relative">
                     <select 
                       value={demoInput.gender} 
                       onChange={(e) => {
@@ -270,14 +275,19 @@ export default function AISettings() {
                         const newStyles = STYLE_MAPPINGS[newGender][newType];
                         setDemoInput({...demoInput, gender: newGender, styleType: newType, styleName: newStyles[0]});
                       }}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
+                      className="appearance-none w-full px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm cursor-pointer pr-10"
                     >
                       <option value="MALE">Male</option>
                       <option value="FEMALE">Female</option>
                     </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                      <ChevronDown className="w-4 h-4" />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Style Type</label>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Style Type</label>
+                  <div className="relative">
                     <select 
                       value={demoInput.styleType} 
                       onChange={(e) => {
@@ -285,25 +295,33 @@ export default function AISettings() {
                         const newStyles = STYLE_MAPPINGS[demoInput.gender][newType];
                         setDemoInput({...demoInput, styleType: newType, styleName: newStyles[0]});
                       }}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
+                      className="appearance-none w-full px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm cursor-pointer pr-10"
                     >
                       <option value="HAIR_STYLE">Hair Style</option>
                       {demoInput.gender === "MALE" && <option value="BEARD_STYLE">Beard Style</option>}
                       <option value="HAIR_COLOR">Hair Color</option>
                     </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                      <ChevronDown className="w-4 h-4" />
+                    </div>
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Style Name</label>
-                  <select 
-                    value={demoInput.styleName} 
-                    onChange={(e) => setDemoInput({...demoInput, styleName: e.target.value})}
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
-                  >
-                    {STYLE_MAPPINGS[demoInput.gender]?.[demoInput.styleType]?.map(style => (
-                      <option key={style} value={style}>{style}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select 
+                      value={demoInput.styleName} 
+                      onChange={(e) => setDemoInput({...demoInput, styleName: e.target.value})}
+                      className="appearance-none w-full px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm cursor-pointer pr-10"
+                    >
+                      {STYLE_MAPPINGS[demoInput.gender]?.[demoInput.styleType]?.map(style => (
+                        <option key={style} value={style}>{style}</option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                      <ChevronDown className="w-4 h-4" />
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="pt-2">

@@ -5,6 +5,7 @@ import { Plus, Search, ChevronDown, Calendar, Filter, X } from 'lucide-react';
 import SalonsTable from '../../components/salons/SalonsTable';
 import EditSalonModal, { SalonFormData } from '../../components/salons/EditSalonModal';
 import ConfirmationDialog from '../../components/ui/ConfirmationDialog';
+import CustomDropdown from '../../components/ui/CustomDropdown';
 
 // Mock data
 const MOCK_SALONS = [
@@ -162,53 +163,40 @@ export default function SalonsPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Filter className="w-4 h-4 text-gray-400" />
-              </div>
-              <select 
-                value={statusFilter}
-                onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
-                className="appearance-none pl-9 pr-8 py-2 bg-[#f0f2f5] border-none rounded-full text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1877f2] cursor-pointer"
-              >
-                <option value="All Status">All Status</option>
-                <option value="ACTIVE">Active</option>
-                <option value="PENDING">Pending</option>
-                <option value="SUSPENDED">Suspended</option>
-              </select>
-              <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+            <CustomDropdown
+              value={statusFilter}
+              onChange={(val) => { setStatusFilter(val); setCurrentPage(1); }}
+              icon={<Filter className="w-4 h-4 text-gray-400" />}
+              options={[
+                { label: "All Status", value: "All Status" },
+                { label: "Active", value: "ACTIVE" },
+                { label: "Pending", value: "PENDING" },
+                { label: "Suspended", value: "SUSPENDED" }
+              ]}
+            />
             
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Filter className="w-4 h-4 text-gray-400" />
-              </div>
-              <select 
-                value={planFilter}
-                onChange={(e) => { setPlanFilter(e.target.value); setCurrentPage(1); }}
-                className="appearance-none pl-9 pr-8 py-2 bg-[#f0f2f5] border-none rounded-full text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1877f2] cursor-pointer"
-              >
-                <option value="All Plans">All Plans</option>
-                <option value="Premium">Premium</option>
-                <option value="Starter">Starter</option>
-                <option value="Enterprise">Enterprise</option>
-              </select>
-              <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+            <CustomDropdown
+              value={planFilter}
+              onChange={(val) => { setPlanFilter(val); setCurrentPage(1); }}
+              icon={<Filter className="w-4 h-4 text-gray-400" />}
+              options={[
+                { label: "All Plans", value: "All Plans" },
+                { label: "Premium", value: "Premium" },
+                { label: "Starter", value: "Starter" },
+                { label: "Enterprise", value: "Enterprise" }
+              ]}
+            />
 
-            <div className="relative hidden md:block">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Calendar className="w-4 h-4 text-gray-400" />
-              </div>
-              <select 
+            <div className="hidden md:block">
+              <CustomDropdown
                 value={sortOrder}
-                onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}
-                className="appearance-none pl-9 pr-8 py-2 bg-[#f0f2f5] border-none rounded-full text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1877f2] cursor-pointer"
-              >
-                <option value="Newest First">Newest</option>
-                <option value="Oldest First">Oldest</option>
-              </select>
-              <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                onChange={(val) => { setSortOrder(val); setCurrentPage(1); }}
+                icon={<Calendar className="w-4 h-4 text-gray-400" />}
+                options={[
+                  { label: "Newest First", value: "Newest First" },
+                  { label: "Oldest First", value: "Oldest First" }
+                ]}
+              />
             </div>
 
             {(searchQuery || statusFilter !== 'All Status' || planFilter !== 'All Plans') && (

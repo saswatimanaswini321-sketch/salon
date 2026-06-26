@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, memo, useRef } from "react";
 import axios from "axios";
 import { Users, Store, IndianRupee, Activity, CheckCircle, ShieldAlert, Search, Filter, X } from "lucide-react";
+import CustomDropdown from "../../components/ui/CustomDropdown";
 
 interface DashboardMetrics {
   totalSalons: number;
@@ -256,38 +257,30 @@ export default function Dashboard() {
               />
             </div>
             
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Filter className="w-4 h-4 text-gray-400" />
-              </div>
-              <select 
-                value={selectedFilter}
-                onChange={e => setSelectedFilter(e.target.value as any)}
-                className="appearance-none pl-9 pr-8 py-2 bg-[#f0f2f5] border-none rounded-full text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1877f2] cursor-pointer"
-              >
-                <option value="ALL">All Status</option>
-                <option value="ACTIVE">Active</option>
-                <option value="PENDING">Pending</option>
-                <option value="SUSPENDED">Suspended</option>
-              </select>
-            </div>
+            <CustomDropdown
+              value={selectedFilter}
+              onChange={(val) => setSelectedFilter(val as any)}
+              icon={<Filter className="w-4 h-4 text-gray-400" />}
+              options={[
+                { label: "All Status", value: "ALL" },
+                { label: "Active", value: "ACTIVE" },
+                { label: "Pending", value: "PENDING" },
+                { label: "Suspended", value: "SUSPENDED" }
+              ]}
+            />
 
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Filter className="w-4 h-4 text-gray-400" />
-              </div>
-              <select 
-                value={subFilter}
-                onChange={e => setSubFilter(e.target.value)}
-                className="appearance-none pl-9 pr-8 py-2 bg-[#f0f2f5] border-none rounded-full text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1877f2] cursor-pointer"
-              >
-                <option value="ALL">All Plans</option>
-                <option value="Free">Free</option>
-                <option value="Starter">Starter</option>
-                <option value="Premium">Premium</option>
-                <option value="Enterprise">Enterprise</option>
-              </select>
-            </div>
+            <CustomDropdown
+              value={subFilter}
+              onChange={(val) => setSubFilter(val)}
+              icon={<Filter className="w-4 h-4 text-gray-400" />}
+              options={[
+                { label: "All Plans", value: "ALL" },
+                { label: "Free", value: "Free" },
+                { label: "Starter", value: "Starter" },
+                { label: "Premium", value: "Premium" },
+                { label: "Enterprise", value: "Enterprise" }
+              ]}
+            />
           </div>
         </div>
         
