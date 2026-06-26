@@ -126,41 +126,41 @@ export default function AISettings() {
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">AI Engine Management</h1>
-        <p className="text-gray-500">Configure API keys, model routing, master prompts, and audit AI usage.</p>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto animate-in fade-in duration-500">
+      <div className="mb-6 sm:mb-8 text-center sm:text-left">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">AI Engine Management</h1>
+        <p className="text-sm sm:text-base text-gray-500">Configure API keys, model routing, master prompts, and audit AI usage.</p>
       </div>
 
-      {/* Tabs Header */}
-      <div className="flex space-x-1 bg-white p-1 rounded-xl shadow-sm border border-gray-200 mb-6">
+      {/* Tabs Header - Stack on mobile, inline on tablet/desktop */}
+      <div className="flex flex-col sm:flex-row sm:space-x-1 space-y-2 sm:space-y-0 bg-white p-1.5 rounded-xl shadow-sm border border-gray-200 mb-6">
         <button 
           onClick={() => setActiveTab("config")}
-          className={`flex-1 py-3 px-4 rounded-lg flex items-center justify-center font-medium transition-all ${activeTab === 'config' ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
+          className={`flex-1 py-3 px-3 sm:px-4 rounded-lg flex items-center justify-center font-medium transition-all text-sm sm:text-base ${activeTab === 'config' ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 border border-transparent'}`}
         >
           <Settings className="w-4 h-4 mr-2" /> Configuration
         </button>
         <button 
           onClick={() => setActiveTab("prompts")}
-          className={`flex-1 py-3 px-4 rounded-lg flex items-center justify-center font-medium transition-all ${activeTab === 'prompts' ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
+          className={`flex-1 py-3 px-3 sm:px-4 rounded-lg flex items-center justify-center font-medium transition-all text-sm sm:text-base ${activeTab === 'prompts' ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 border border-transparent'}`}
         >
           <MessageSquare className="w-4 h-4 mr-2" /> Master Prompts
         </button>
         <button 
           onClick={() => setActiveTab("demo")}
-          className={`flex-1 py-3 px-4 rounded-lg flex items-center justify-center font-medium transition-all ${activeTab === 'demo' ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
+          className={`flex-1 py-3 px-3 sm:px-4 rounded-lg flex items-center justify-center font-medium transition-all text-sm sm:text-base ${activeTab === 'demo' ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 border border-transparent'}`}
         >
           <ImageIcon className="w-4 h-4 mr-2" /> Demo & Audit
         </button>
       </div>
 
       {/* Tabs Content */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 sm:p-6 md:p-8">
         
         {/* CONFIG TAB */}
         {activeTab === "config" && (
-          <div className="animate-in fade-in duration-300">
-            <h2 className="text-xl font-semibold mb-6 flex items-center text-gray-800">
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <h2 className="text-lg sm:text-xl font-semibold mb-6 flex items-center text-gray-800 border-b border-gray-100 pb-4">
               <Key className="w-5 h-5 mr-2 text-blue-600" /> API Key Management
             </h2>
             <div className="space-y-5">
@@ -214,13 +214,13 @@ export default function AISettings() {
 
         {/* PROMPTS TAB */}
         {activeTab === "prompts" && (
-          <div className="animate-in fade-in duration-300">
-            <h2 className="text-xl font-semibold mb-6 flex items-center text-gray-800">
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <h2 className="text-lg sm:text-xl font-semibold mb-6 flex items-center text-gray-800 border-b border-gray-100 pb-4">
               <MessageSquare className="w-5 h-5 mr-2 text-blue-600" /> Master Prompts Library
             </h2>
             <div className="space-y-6">
               {prompts.map((prompt) => (
-                <div key={prompt.id} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <div key={prompt.id} className="bg-gray-50 rounded-xl p-4 border border-gray-200 transition-all hover:border-blue-200 hover:shadow-sm">
                   <label className="block text-sm font-bold text-gray-800 mb-2">{prompt.type}</label>
                   <textarea 
                     value={prompt.promptText}
@@ -230,14 +230,15 @@ export default function AISettings() {
                       newPrompts[index].promptText = e.target.value;
                       setPrompts(newPrompts);
                     }}
-                    rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm mb-3"
+                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm mb-3 bg-white resize-y min-h-[100px]"
                   />
                   <div className="flex justify-end">
                     <button 
                       onClick={() => handleSavePrompt(prompt.type, prompt.promptText)}
-                      className="px-4 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium rounded-lg shadow-sm transition-all text-sm"
+                      className="w-full sm:w-auto px-5 py-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-blue-700 hover:border-blue-300 font-medium rounded-lg shadow-sm transition-all text-sm flex items-center justify-center"
                     >
+                      <Save className="w-4 h-4 mr-2 text-blue-500" />
                       Update {prompt.type}
                     </button>
                   </div>
@@ -249,53 +250,55 @@ export default function AISettings() {
 
         {/* DEMO TAB */}
         {activeTab === "demo" && (
-          <div className="animate-in fade-in duration-300">
-            <h2 className="text-xl font-semibold mb-6 flex items-center text-gray-800">
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <h2 className="text-lg sm:text-xl font-semibold mb-6 flex items-center text-gray-800 border-b border-gray-100 pb-4">
               <ImageIcon className="w-5 h-5 mr-2 text-blue-600" /> AI Generation Demo
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
               {/* Controls */}
-              <div className="space-y-4 bg-gray-50 p-5 rounded-xl border border-gray-200">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                  <select 
-                    value={demoInput.gender} 
-                    onChange={(e) => {
-                      const newGender = e.target.value;
-                      const availableTypes = Object.keys(STYLE_MAPPINGS[newGender]).filter(k => STYLE_MAPPINGS[newGender][k].length > 0);
-                      const newType = availableTypes.includes(demoInput.styleType) ? demoInput.styleType : availableTypes[0];
-                      const newStyles = STYLE_MAPPINGS[newGender][newType];
-                      setDemoInput({...demoInput, gender: newGender, styleType: newType, styleName: newStyles[0]});
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="MALE">Male</option>
-                    <option value="FEMALE">Female</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Style Type</label>
-                  <select 
-                    value={demoInput.styleType} 
-                    onChange={(e) => {
-                      const newType = e.target.value;
-                      const newStyles = STYLE_MAPPINGS[demoInput.gender][newType];
-                      setDemoInput({...demoInput, styleType: newType, styleName: newStyles[0]});
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="HAIR_STYLE">Hair Style</option>
-                    {demoInput.gender === "MALE" && <option value="BEARD_STYLE">Beard Style</option>}
-                    <option value="HAIR_COLOR">Hair Color</option>
-                  </select>
+              <div className="space-y-5 bg-gray-50/50 p-4 sm:p-6 rounded-xl border border-gray-200 shadow-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                    <select 
+                      value={demoInput.gender} 
+                      onChange={(e) => {
+                        const newGender = e.target.value;
+                        const availableTypes = Object.keys(STYLE_MAPPINGS[newGender]).filter(k => STYLE_MAPPINGS[newGender][k].length > 0);
+                        const newType = availableTypes.includes(demoInput.styleType) ? demoInput.styleType : availableTypes[0];
+                        const newStyles = STYLE_MAPPINGS[newGender][newType];
+                        setDemoInput({...demoInput, gender: newGender, styleType: newType, styleName: newStyles[0]});
+                      }}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
+                    >
+                      <option value="MALE">Male</option>
+                      <option value="FEMALE">Female</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Style Type</label>
+                    <select 
+                      value={demoInput.styleType} 
+                      onChange={(e) => {
+                        const newType = e.target.value;
+                        const newStyles = STYLE_MAPPINGS[demoInput.gender][newType];
+                        setDemoInput({...demoInput, styleType: newType, styleName: newStyles[0]});
+                      }}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
+                    >
+                      <option value="HAIR_STYLE">Hair Style</option>
+                      {demoInput.gender === "MALE" && <option value="BEARD_STYLE">Beard Style</option>}
+                      <option value="HAIR_COLOR">Hair Color</option>
+                    </select>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Style Name</label>
                   <select 
                     value={demoInput.styleName} 
                     onChange={(e) => setDemoInput({...demoInput, styleName: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
                   >
                     {STYLE_MAPPINGS[demoInput.gender]?.[demoInput.styleType]?.map(style => (
                       <option key={style} value={style}>{style}</option>
@@ -303,46 +306,54 @@ export default function AISettings() {
                   </select>
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Upload Reference Image (Optional)</label>
-                  <div className="flex items-center space-x-4">
-                    <label className="cursor-pointer flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 text-sm font-medium text-gray-700 transition-all">
-                      <Upload className="w-4 h-4 mr-2 text-gray-500" />
+                <div className="pt-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Upload Reference Image (Optional)</label>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                    <label className="cursor-pointer flex items-center justify-center px-4 py-2.5 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 text-sm font-medium text-gray-700 transition-all shadow-sm w-full sm:w-auto">
+                      <Upload className="w-4 h-4 mr-2 text-blue-500" />
                       Choose File
                       <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
                     </label>
                     {demoImagePreview && (
-                      <div className="w-10 h-10 rounded-md overflow-hidden border border-gray-200">
+                      <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 shadow-sm shrink-0 mx-auto sm:mx-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={demoImagePreview} alt="Preview" className="w-full h-full object-cover" />
                       </div>
                     )}
                   </div>
                 </div>
                 
-                <button 
-                  onClick={runDemo} 
-                  disabled={demoLoading}
-                  className="w-full mt-4 flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition-all"
-                >
-                  {demoLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Generate Mock Image"}
-                </button>
+                <div className="pt-4 border-t border-gray-200">
+                  <button 
+                    onClick={runDemo} 
+                    disabled={demoLoading}
+                    className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {demoLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : "Generate Mock Image"}
+                  </button>
+                </div>
               </div>
 
               {/* Output */}
-              <div className="flex flex-col items-center justify-center bg-gray-100 rounded-xl border border-gray-200 p-2 min-h-[300px] overflow-hidden relative">
+              <div className="flex flex-col items-center justify-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 p-4 min-h-[300px] lg:min-h-[400px] overflow-hidden relative transition-all">
                 {demoLoading ? (
-                  <div className="text-center">
-                    <Loader2 className="w-10 h-10 animate-spin text-blue-600 mx-auto mb-2" />
-                    <p className="text-gray-500 text-sm">Simulating AI API Call...</p>
-                    <p className="text-gray-400 text-xs mt-1">(Deducting 50 tokens from database)</p>
+                  <div className="text-center animate-in fade-in">
+                    <Loader2 className="w-10 h-10 animate-spin text-blue-600 mx-auto mb-3" />
+                    <p className="text-gray-700 font-medium">Simulating AI API Call...</p>
+                    <p className="text-gray-500 text-sm mt-1 bg-white px-3 py-1 rounded-full border border-gray-200 inline-block">Deducting 50 tokens from database</p>
                   </div>
                 ) : demoResult ? (
-                  <div className="w-full h-full flex flex-col items-center p-2">
-                    <img src={demoResult.generatedImage} alt="Generated" className="w-full h-full object-cover rounded-lg shadow-md max-h-[300px]" />
-                    <p className="text-green-600 text-sm font-medium mt-3 bg-green-50 px-3 py-1 rounded-full">{demoResult.message}</p>
+                  <div className="w-full h-full flex flex-col items-center justify-center p-2 animate-in zoom-in-95 duration-300">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={demoResult.generatedImage} alt="Generated" className="w-full h-full object-contain rounded-lg shadow-sm max-h-[350px]" />
+                    <p className="text-green-700 text-sm font-semibold mt-4 bg-green-50 border border-green-200 px-4 py-1.5 rounded-full shadow-sm">{demoResult.message}</p>
                   </div>
                 ) : (
-                  <p className="text-gray-400">Generated image will appear here</p>
+                  <div className="text-center text-gray-400 p-6">
+                    <ImageIcon className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p className="font-medium text-gray-500">Generated image will appear here</p>
+                    <p className="text-xs mt-1">Select styles and click generate to test the API.</p>
+                  </div>
                 )}
               </div>
             </div>
