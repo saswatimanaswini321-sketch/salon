@@ -23,6 +23,22 @@ export class SignupDto {
 
   @IsString()
   @IsOptional()
+  store_address?: string;
+
+  @IsString()
+  @IsOptional()
+  store_gst?: string;
+
+  @IsString()
+  @IsOptional()
+  subscription_id?: string;
+
+  @IsString()
+  @IsOptional()
+  billing_cycle?: string;
+
+  @IsString()
+  @IsOptional()
   phone?: string;
 
   @IsEmail()
@@ -31,6 +47,23 @@ export class SignupDto {
   @IsString()
   @MinLength(6)
   password: string;
+
+  // Staff details
+  @IsString()
+  @IsOptional()
+  staff_name?: string;
+
+  @IsString()
+  @IsOptional()
+  staff_email?: string;
+
+  @IsString()
+  @IsOptional()
+  staff_phone?: string;
+
+  @IsString()
+  @IsOptional()
+  staff_password?: string;
 }
 
 export class ForgotPasswordDto {
@@ -115,5 +148,10 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   me(@Request() req: { user: { sub: string } }) {
     return this.authService.getProfile(req.user.sub);
+  }
+
+  @Get('subscriptions')
+  getPublicSubscriptions() {
+    return this.authService.getPublicSubscriptions();
   }
 }

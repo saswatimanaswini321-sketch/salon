@@ -31,12 +31,29 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       }),
-    signup: (data: { name: string; store_name?: string; phone?: string; email: string; password: string }) =>
+    signup: (data: { 
+      name: string; 
+      email: string; 
+      password: string;
+      phone?: string; 
+      store_name?: string; 
+      store_address?: string;
+      store_gst?: string;
+      subscription_id?: string;
+      staff_name?: string;
+      staff_email?: string;
+      staff_phone?: string;
+      staff_password?: string;
+    }) =>
       request<import('./types').Profile>('/auth/signup', {
         method: 'POST',
         body: JSON.stringify(data),
       }),
     me: () => request<import('./types').Profile>('/auth/me'),
+  },
+
+  subscriptions: {
+    listPublic: () => request<any[]>('/auth/subscriptions'),
   },
 
   services: {

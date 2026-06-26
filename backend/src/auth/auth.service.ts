@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SupabaseService } from '../supabase/supabase.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { SignupDto } from './auth.controller';
 
 @Injectable()
@@ -8,9 +9,11 @@ export class AuthService {
   constructor(
     private readonly supabase: SupabaseService,
     private readonly jwt: JwtService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async signup(dto: SignupDto) {
+    // 1. Create Admin User Auth
     const { data, error } = await this.supabase.db.auth.admin.createUser({
       email: dto.email,
       password: dto.password,
@@ -19,6 +22,7 @@ export class AuthService {
 
     if (error) throw new ConflictException(error.message);
 
+    // 2. Create Admin Profile
     const { data: profile, error: profileError } = await this.supabase.db
       .from('profiles')
       .insert({ 
@@ -32,6 +36,59 @@ export class AuthService {
       .single();
       
     if (profileError) throw new ConflictException(profileError.message);
+
+    try {
+      // 3. Create Salon (Store)
+      const salon = await this.prisma.salon.create({
+        data: {
+          name: dto.store_name || 'My Salon',
+          ownerId: data.user.id,
+          ownerName: dto.name,
+          email: dto.email,
+          mobile: dto.phone,
+          gstNumber: dto.store_gst,
+          subscriptionId: dto.subscription_id,
+          status: 'ACTIVE',
+        }
+      });
+
+      // 4. Create Branch
+      const branch = await this.prisma.branch.create({
+        data: {
+          salonId: salon.id,
+          name: 'Main Branch',
+          address: dto.store_address,
+        }
+      });
+    } catch (dbError: any) {
+      // Rollback: Delete the user from Supabase if DB creation fails
+      await this.supabase.db.auth.admin.deleteUser(data.user.id);
+      
+      if (dbError.code === 'P2003' && dbError.meta?.constraint === 'Salon_subscriptionId_fkey') {
+        throw new ConflictException('The selected subscription plan no longer exists. Please refresh the page to load the latest plans.');
+      }
+      throw new ConflictException('Failed to create store. Please try again.');
+    }
+
+    // 5. Create Staff User (if provided)
+    if (dto.staff_email && dto.staff_password) {
+      const { data: staffData, error: staffError } = await this.supabase.db.auth.admin.createUser({
+        email: dto.staff_email,
+        password: dto.staff_password,
+        email_confirm: true,
+      });
+
+      if (!staffError && staffData.user) {
+        await this.supabase.db.from('profiles').insert({
+          id: staffData.user.id,
+          full_name: dto.staff_name || 'Staff',
+          role: 'barber',
+          phone: dto.staff_phone,
+          // Since branch linking in Supabase profiles might need a branch_id column:
+          // branch_id: branch.id // Assuming it exists or will be added later
+        });
+      }
+    }
 
     return profile;
   }
@@ -75,6 +132,10 @@ export class AuthService {
       .eq('id', userId)
       .single();
     return data;
+  }
+
+  async getPublicSubscriptions() {
+    return this.prisma.subscription.findMany();
   }
 
   async resetPassword(email: string, newPassword: string) {

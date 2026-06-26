@@ -103,7 +103,7 @@ export default function UsersPage() {
                 }} placeholder="+91 9876543210" required />
               </div>
               <div>
-                <label className="label">Temporary Password</label>
+                <label className="label">Password</label>
                 <input className="input" type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Min 8 characters" minLength={8} required />
               </div>
               {error && <div className="error-box">{error}</div>}
