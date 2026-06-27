@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Users, UserPlus, TrendingUp, CalendarDays, Loader2 } from 'lucide-react';
+import { Users, UserPlus, TrendingUp, CalendarDays, Loader2, CreditCard } from 'lucide-react';
 import { isAuthenticated, getUser } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { AnalyticsOverview } from '@/lib/types';
@@ -15,6 +15,7 @@ export default function AdminDashboardPage() {
   const [data, setData] = useState<AnalyticsOverview | null>(null);
   const [chartData, setChartData] = useState<{ name: string; count: number }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [salon, setSalon] = useState<any>(null);
 
   useEffect(() => {
     if (!isAuthenticated()) { router.replace('/login'); return; }
@@ -24,9 +25,13 @@ export default function AdminDashboardPage() {
     Promise.all([
       api.analytics.overview(),
       api.analytics.services(),
-    ]).then(([overview, services]) => {
+      api.admin.getSalonAndBranches()
+    ]).then(([overview, services, salonData]) => {
       setData(overview);
       setChartData(services.slice(0, 5)); // Top 5
+      setSalon(salonData);
+    }).catch(err => {
+      console.error(err);
     }).finally(() => setLoading(false));
   }, [router]);
 
@@ -50,9 +55,16 @@ export default function AdminDashboardPage() {
       <LandingNav activePage="admin" />
 
       <div className="content" style={{ paddingTop: '100px' }}>
-        <div className="fu" style={{ marginBottom: '24px' }}>
-          <div className="eyebrow">Overview</div>
-          <h2 style={{ fontSize: '26px' }}>Salon Performance</h2>
+        <div className="fu" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <div>
+            <div className="eyebrow">Overview</div>
+            <h2 style={{ fontSize: '26px' }}>Salon Performance</h2>
+          </div>
+          {salon?.subscription && (
+            <div style={{ background: 'var(--bg-input)', padding: '6px 12px', borderRadius: 'var(--r-full)', fontSize: '12px', fontWeight: 600, color: 'var(--purple-light)', border: '1px solid var(--border)' }}>
+              {salon.subscription.name.toUpperCase()} PLAN
+            </div>
+          )}
         </div>
 
         <div className="fu1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '32px' }}>
@@ -115,6 +127,13 @@ export default function AdminDashboardPage() {
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="M16.5 9.4 7.55 4.24"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
               </div>
               <span style={{ fontWeight: 600, fontSize: '14px' }}>Manage Branches</span>
+            </div>
+            <ChevronRight size={16} color="var(--text-muted)" />
+          </Link>
+          <Link href="/admin/subscription" className="panel panel-interactive" style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)' }}><CreditCard size={15} /></div>
+              <span style={{ fontWeight: 600, fontSize: '14px' }}>Manage Subscription</span>
             </div>
             <ChevronRight size={16} color="var(--text-muted)" />
           </Link>

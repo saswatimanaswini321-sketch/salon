@@ -17,6 +17,13 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('salon_token');
+        localStorage.removeItem('salon_user');
+        window.location.href = '/login';
+      }
+    }
     const error = await res.json().catch(() => ({ message: 'Request failed' }));
     throw new Error(error.message ?? 'Request failed');
   }

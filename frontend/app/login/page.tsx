@@ -42,33 +42,22 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      // Use native Supabase Auth because the backend strictly expects Supabase JWT tokens
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password: password
-      });
+      const { access_token, user } = await api.auth.login(email.trim(), password);
       
-      if (error) throw error;
+      const userProfile = {
+        id: user.id,
+        role: user.role || 'barber',
+        name: (user as any).full_name || user.name || email.trim().split('@')[0] || 'Barber',
+        email: user.email || email.trim(),
+        created_at: user.created_at || new Date().toISOString()
+      };
       
-      if (data.session && data.user) {
-        // Fetch profile to get role
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
-        
-        const userProfile = {
-          id: data.user.id,
-          role: profile?.role || 'barber',
-          name: profile?.full_name || data.user.email?.split('@')[0] || 'Barber',
-          email: data.user.email || '',
-          created_at: data.user.created_at
-        };
-        saveAuth(data.session.access_token, profile);
-        localStorage.setItem('show_welcome', 'true');
-        saveAuth(data.session.access_token, userProfile);
-        router.replace('/consult');
-      }
+      saveAuth(access_token, userProfile);
+      localStorage.setItem('show_welcome', 'true');
+      router.replace('/consult');
     } catch (err: any) {
       // Fallback for "Demo Mode" if Supabase isn't hooked up yet
-      if (err.message.includes('placeholder')) {
+      if (err.message.includes('placeholder') || err.message.includes('fetch failed')) {
          enterDemo();
       } else {
          setError(err.message || 'Invalid credentials. Please try again.');

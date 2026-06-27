@@ -76,3 +76,33 @@ export interface ConsultState {
   description: string;
   sessionId: string | null;
 }
+
+export interface Subscription {
+  id: string;
+  name: string;
+  monthlyPrice: number;
+  quarterlyPrice: number;
+  annualPrice: number;
+  barberLimit: number;
+  aiLimit: number;
+  createdAt: string;
+}
+
+export interface APIUsage {
+  id: string;
+  tokensUsed: number;
+  apiCalls: number;
+  dailyLimit: number;
+  monthlyLimit: number;
+  isBlocked: boolean;
+  updatedAt: string;
+}
+
+export interface Salon {
+  id: string;
+  name: string;
+  ownerId: string;
+  createdAt: string;
+  subscription?: Subscription;
+  apiUsage?: APIUsage;
+}

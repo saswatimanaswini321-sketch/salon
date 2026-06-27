@@ -68,7 +68,7 @@ export class AdminService {
   async getSalonDetails(ownerId: string) {
     const salon = await this.prisma.salon.findFirst({
       where: { ownerId },
-      include: { branches: true },
+      include: { branches: true, subscription: true, apiUsage: true },
     });
     if (!salon) throw new NotFoundException('Salon not found');
     return salon;
