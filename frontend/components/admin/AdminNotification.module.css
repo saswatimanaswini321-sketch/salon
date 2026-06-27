@@ -128,8 +128,8 @@
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(6px);
   z-index: 2000;
   display: flex;
   align-items: center;
@@ -139,12 +139,14 @@
 
 .modalContent {
   background: var(--bg-panel);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(197, 157, 95, 0.3);
+  border-top: 2px solid #c59d5f;
   border-radius: var(--r-lg);
-  padding: 32px;
+  padding: 36px 32px;
   width: 100%;
-  max-width: 400px;
+  max-width: 360px;
   text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(197, 157, 95, 0.08);
 }
 
 .modalIcon {

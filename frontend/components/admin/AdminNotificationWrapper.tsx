@@ -1,19 +1,42 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { Bell, BellRing, X, Trash2, Info } from 'lucide-react';
 import { api } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 import styles from './AdminNotification.module.css';
 
+// Play a soft notification sound using Web Audio API (no file needed, 100% free)
+function playNotificationSound() {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, ctx.currentTime);          // High note
+    oscillator.frequency.setValueAtTime(660, ctx.currentTime + 0.1);    // Mid note
+
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.4);
+  } catch (e) {
+    // Browser may block audio without user interaction — silently fail
+  }
+}
+
 export default function AdminNotificationWrapper() {
   const pathname = usePathname();
   const [isClient, setIsClient] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [showPopup, setShowPopup] = useState(false);
   const [showCenter, setShowCenter] = useState(false);
-  const [toastMessage, setToastMessage] = useState<any | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     setIsClient(true);
@@ -22,12 +45,6 @@ export default function AdminNotificationWrapper() {
     // 1. Fetch initial notifications from Backend API
     api.notifications.list().then(loadedNotes => {
       setNotifications(loadedNotes);
-
-      const hasUnread = loadedNotes.some(n => !n.isRead);
-      
-      if (hasUnread) {
-        setShowPopup(true);
-      }
     }).catch(console.error);
 
     // 2. Subscribe to Supabase Realtime for new notifications
@@ -46,12 +63,9 @@ export default function AdminNotificationWrapper() {
         },
         (payload) => {
           const newNote = payload.new;
+          // Add to list and play sound — no toast, no popup
           setNotifications(prev => [newNote, ...prev]);
-          
-          if (!newNote.isRead) {
-            setToastMessage(newNote);
-            setTimeout(() => setToastMessage(null), 5000);
-          }
+          playNotificationSound();
         }
       )
       .subscribe();
@@ -77,14 +91,7 @@ export default function AdminNotificationWrapper() {
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
-  const handleDismissPopup = () => {
-    setShowPopup(false);
-    localStorage.setItem('admin_popup_shown', 'true');
-  };
-
-  const handleOpenCenter = () => {
-    setShowCenter(true);
-  };
+  const handleOpenCenter = () => setShowCenter(true);
 
   const handleDelete = async (id: string) => {
     try {
@@ -92,6 +99,17 @@ export default function AdminNotificationWrapper() {
       setNotifications(prev => prev.filter(n => n.id !== id));
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleClearAll = async () => {
+    if (window.confirm('Are you sure you want to delete all notifications?')) {
+      try {
+        await api.notifications.deleteAll();
+        setNotifications([]);
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
@@ -106,26 +124,10 @@ export default function AdminNotificationWrapper() {
 
   return (
     <>
-      {/* Toast Notification for incoming messages */}
-      {toastMessage && (
-        <div className={styles.toastNotification} onClick={handleOpenCenter}>
-          <div className={styles.toastIcon}>
-            <BellRing size={16} />
-          </div>
-          <div className={styles.toastContent}>
-            <p className={styles.toastTitle}>{toastMessage.title}</p>
-            <p className={styles.toastText}>{toastMessage.message}</p>
-          </div>
-          <button className={styles.toastClose} onClick={(e) => { e.stopPropagation(); setToastMessage(null); }}>
-            <X size={14} />
-          </button>
-        </div>
-      )}
-
-      {/* Floating Widget */}
+      {/* Floating Bell Widget */}
       <div className={styles.widgetContainer}>
-        <button 
-          className={`${styles.widgetButton} ${unreadCount > 0 ? styles.animateBounce : ''}`}
+        <button
+          className={styles.widgetButton}
           onClick={handleOpenCenter}
           aria-label="Notifications"
         >
@@ -136,67 +138,130 @@ export default function AdminNotificationWrapper() {
         </button>
       </div>
 
-      {/* Welcome Popup Modal */}
-      {showPopup && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <p style={{ color: 'var(--white)', fontSize: '18px', marginBottom: '24px' }}>
-              You have {unreadCount} new notifications
-            </p>
-            <button className="btn btn-primary" style={{ width: '100%' }} onClick={handleDismissPopup}>
-              Okay
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Slide-over Notification Center */}
       {showCenter && (
         <>
           <div className={styles.slideOverOverlay} onClick={() => setShowCenter(false)} />
           <div className={styles.slideOverPanel}>
             <div className={styles.slideOverHeader}>
-              <h2 style={{ fontSize: '20px', fontFamily: 'var(--font-serif)' }}>Notification Center</h2>
+              <div>
+                <h2 style={{ fontSize: '20px', fontFamily: 'var(--font-serif)' }}>Notifications</h2>
+                {unreadCount > 0 && (
+                  <p style={{ fontSize: '12px', color: '#c59d5f', marginTop: '2px' }}>
+                    {unreadCount} unread
+                  </p>
+                )}
+              </div>
               <button className={styles.closeButton} onClick={() => setShowCenter(false)}>
                 <X size={20} />
               </button>
             </div>
-            
+
+            {/* Search and Action Bar */}
+            <div style={{
+              padding: '16px 24px',
+              borderBottom: '1px solid var(--border)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              background: 'var(--bg-panel)'
+            }}>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search notifications..."
+                style={{
+                  flex: 1,
+                  background: 'var(--bg-input)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--r-md)',
+                  padding: '8px 12px',
+                  fontSize: '13px',
+                  color: 'var(--white)',
+                  outline: 'none',
+                  transition: 'border-color 0.2s',
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#c59d5f'}
+                onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+              />
+              {notifications.length > 0 && (
+                <button
+                  onClick={handleClearAll}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    color: '#ef4444',
+                    borderRadius: 'var(--r-md)',
+                    padding: '8px 12px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    whiteSpace: 'nowrap'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                    e.currentTarget.style.borderColor = '#ef4444';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                  }}
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+
             <div className={styles.notificationList}>
               {notifications.length === 0 ? (
                 <div className={styles.emptyState}>
                   <Bell size={48} opacity={0.2} />
-                  <p>No notifications right now.</p>
+                  <p style={{ fontFamily: 'var(--font-serif)', fontSize: '16px' }}>All Caught Up</p>
+                  <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No new notifications at this time.</p>
+                </div>
+              ) : notifications.filter(note => 
+                  note.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  note.message?.toLowerCase().includes(searchQuery.toLowerCase())
+                ).length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>No notifications match your search.</p>
                 </div>
               ) : (
-                notifications.map(note => (
-                  <div 
-                    key={note.id} 
-                    className={`${styles.notificationItem} ${!note.isRead ? styles.unread : ''}`}
-                    onMouseEnter={() => !note.isRead && markAsRead(note.id)}
-                  >
-                    <div className={styles.notificationIcon}>
-                      <Info size={20} />
-                    </div>
-                    <div className={styles.notificationContent}>
-                      <h4 className={styles.notificationTitle}>{note.title}</h4>
-                      <p className={styles.notificationMessage}>{note.message}</p>
-                      <p className={styles.notificationTime}>
-                        {note.createdAt ? new Date(note.createdAt).toLocaleString() : 'Just now'}
-                      </p>
-                    </div>
-                    <button 
-                      className={styles.deleteButton}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(note.id);
-                      }}
-                      title="Delete"
+                notifications
+                  .filter(note => 
+                    note.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    note.message?.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map(note => (
+                    <div
+                      key={note.id}
+                      className={`${styles.notificationItem} ${!note.isRead ? styles.unread : ''}`}
+                      onMouseEnter={() => !note.isRead && markAsRead(note.id)}
                     >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                ))
+                      <div className={styles.notificationIcon}>
+                        <Info size={20} />
+                      </div>
+                      <div className={styles.notificationContent}>
+                        <h4 className={styles.notificationTitle}>{note.title}</h4>
+                        <p className={styles.notificationMessage}>{note.message}</p>
+                        <p className={styles.notificationTime}>
+                          {note.createdAt ? new Date(note.createdAt).toLocaleString() : 'Just now'}
+                        </p>
+                      </div>
+                      <button
+                        className={styles.deleteButton}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(note.id);
+                        }}
+                        title="Delete"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))
               )}
             </div>
           </div>
