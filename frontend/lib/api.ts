@@ -127,5 +127,6 @@ export const api = {
     markAsRead: (id: string) => request(`/admin/notifications/${id}/read`, { method: 'PATCH' }),
     markAllAsRead: () => request('/admin/notifications/read-all', { method: 'PATCH' }),
     delete: (id: string) => request(`/admin/notifications/${id}`, { method: 'DELETE' }),
+    deleteAll: () => request('/admin/notifications', { method: 'DELETE' }),
   },
 };

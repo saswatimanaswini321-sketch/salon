@@ -80,4 +80,27 @@ export class NotificationsService {
       where: { id },
     });
   }
+
+  async deleteAll(salonId: string) {
+    return this.prisma.notification.deleteMany({
+      where: { salonId },
+    });
+  }
+
+  // Super Admin: Send festival offer or renewal reminder to one salon or all salons
+  async broadcastOffer(salonId: string | 'ALL', type: NotificationType, title: string, message: string) {
+    if (salonId === 'ALL') {
+      const salons = await this.prisma.salon.findMany({ select: { id: true } });
+      const notifications = salons.map(salon =>
+        this.prisma.notification.create({
+          data: { salonId: salon.id, type, title, message, isRead: false },
+        })
+      );
+      return Promise.all(notifications);
+    } else {
+      return this.prisma.notification.create({
+        data: { salonId, type, title, message, isRead: false },
+      });
+    }
+  }
 }
