@@ -75,7 +75,7 @@ export default function SignupPage() {
     }
   }, [selfAsStaff, name, email, phone, password]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     setError('');
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/;
 
@@ -93,6 +93,16 @@ export default function SignupPage() {
         setError('Phone number must be exactly 10 digits.');
         return;
       }
+
+      setLoading(true);
+      try {
+        await api.auth.checkEmail(email.trim());
+      } catch (err: any) {
+        setError(err.message || 'This email is already registered.');
+        setLoading(false);
+        return;
+      }
+      setLoading(false);
     }
     if (step === 2) {
       if (!storeName.trim() || !storeAddress.trim()) {
@@ -295,7 +305,7 @@ export default function SignupPage() {
               <div>
                 <label className="label">Password</label>
                 <div style={{ position: 'relative' }}>
-                  <input type={showPassword ? 'text' : 'password'} className="input" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min 8 characters" minLength={8} pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{8,}" title="Password must have a minimum length of 8, with 1 uppercase, 1 lowercase, 1 number, and 1 special character" style={{ background: 'rgba(255,255,255,0.03)' }} />
+                  <input type={showPassword ? 'text' : 'password'} className="input" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min 8 characters" minLength={8} pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}" title="Password must have a minimum length of 8, with 1 uppercase, 1 lowercase, 1 number, and 1 special character" style={{ background: 'rgba(255,255,255,0.03)' }} />
                   <button type="button" onClick={() => setShowPassword(v => !v)} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', zIndex: 10 }}>
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -363,7 +373,7 @@ export default function SignupPage() {
                   <div>
                     <label className="label">Staff Password</label>
                     <div style={{ position: 'relative' }}>
-                      <input type={showStaffPassword ? 'text' : 'password'} className="input" value={staffPassword} onChange={e => setStaffPassword(e.target.value)} readOnly={selfAsStaff} placeholder="Min 8 characters" minLength={8} pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{8,}" title="Staff password must have a minimum length of 8, with 1 uppercase, 1 lowercase, 1 number, and 1 special character" style={{ background: 'rgba(255,255,255,0.03)' }} />
+                      <input type={showStaffPassword ? 'text' : 'password'} className="input" value={staffPassword} onChange={e => setStaffPassword(e.target.value)} readOnly={selfAsStaff} placeholder="Min 8 characters" minLength={8} pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}" title="Staff password must have a minimum length of 8, with 1 uppercase, 1 lowercase, 1 number, and 1 special character" style={{ background: 'rgba(255,255,255,0.03)' }} />
                       <button type="button" onClick={() => setShowStaffPassword(v => !v)} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', zIndex: 10 }}>
                         {showStaffPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>

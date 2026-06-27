@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Edit2, Eye, CheckCircle2, Clock, ShieldAlert, ChevronLeft, ChevronRight, ChevronDown, Mail, Phone } from 'lucide-react';
+import { Edit2, Eye, CheckCircle2, Clock, ShieldAlert, ChevronLeft, ChevronRight, ChevronDown, Mail, Phone, Trash2 } from 'lucide-react';
 import { SalonFormData } from './EditSalonModal';
 
 interface Salon {
@@ -174,6 +174,12 @@ export default function SalonsTable({
               >
                 <Edit2 className="h-4 w-4" /> Edit
               </button>
+              <button 
+                onClick={() => onDelete(salon)}
+                className="flex-1 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors font-medium text-sm gap-1.5"
+              >
+                <Trash2 className="h-4 w-4" /> Delete
+              </button>
             </div>
           </div>
         ))}
@@ -255,6 +261,13 @@ export default function SalonsTable({
                       title="Edit"
                     >
                       <Edit2 className="h-3.5 w-3.5" />
+                    </button>
+                    <button 
+                      onClick={() => onDelete(salon)}
+                      className="h-7 w-7 rounded border border-gray-200 flex items-center justify-center text-gray-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-colors"
+                      title="Delete"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </td>

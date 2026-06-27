@@ -56,6 +56,11 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
       }),
+    checkEmail: (email: string) =>
+      request<{ available: boolean }>('/auth/check-email', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      }),
     me: () => request<import('./types').Profile>('/auth/me'),
   },
 
@@ -118,7 +123,12 @@ export const api = {
       request<import('./types').Profile>('/admin/users', { method: 'POST', body: JSON.stringify(data) }),
     deleteUser: (id: string) => request(`/admin/users/${id}`, { method: 'DELETE' }),
     getSalonAndBranches: () => request<any>('/admin/salon'),
-    createBranch: (data: { name: string; address?: string }) => request<any>('/admin/branches', { method: 'POST', body: JSON.stringify(data) }),
+    updateSalon: (data: { name?: string; address?: string; gstNo?: string }) =>
+      request<any>('/admin/salon', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    addBranch: (data: { name: string; address?: string }) => request<any>('/admin/branches', { method: 'POST', body: JSON.stringify(data) }),
   },
 
   notifications: {

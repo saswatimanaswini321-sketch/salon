@@ -31,6 +31,11 @@ export class AdminController {
   @Get('salon')
   getSalon(@Req() req: any) { return this.adminService.getSalonDetails(req.user.sub); }
 
+  @Post('salon')
+  updateSalon(@Req() req: any, @Body() body: { name?: string; address?: string; gstNo?: string }) {
+    return this.adminService.updateSalon(req.user.sub, body);
+  }
+
   @Post('branches')
   addBranch(@Req() req: any, @Body() body: { name: string, address?: string }) { 
     return this.adminService.addBranch(req.user.sub, body); 
