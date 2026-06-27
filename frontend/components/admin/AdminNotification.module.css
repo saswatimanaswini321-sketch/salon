@@ -10,21 +10,27 @@
   height: 56px;
   border-radius: 50%;
   background: var(--bg-panel);
-  border: 1px solid var(--border);
+  border: 2px solid #d4af37;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--white);
+  color: #d4af37;
   cursor: pointer;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-  transition: all 0.3s var(--ease);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
   animation: float 3s ease-in-out infinite;
+  position: relative;
 }
 
 .widgetButton:hover {
-  background: var(--bg-input);
-  border-color: var(--purple);
-  transform: scale(1.05) translateY(-5px);
+  color: #f5d060;
+  box-shadow:
+    0 0 0 2px rgba(245, 208, 96, 0.5),
+    0 0 28px rgba(212, 175, 55, 0.6),
+    0 0 60px rgba(212, 175, 55, 0.2),
+    0 8px 25px rgba(0, 0, 0, 0.6);
+  transform: scale(1.1) translateY(-4px);
+  animation-play-state: paused;
 }
 
 @keyframes float {
@@ -35,12 +41,12 @@
 
 .badge {
   position: absolute;
-  top: 0;
-  right: 0;
-  background: #ef4444;
-  color: white;
+  top: -2px;
+  right: -2px;
+  background: linear-gradient(135deg, #f5d060, #d4af37);
+  color: #1a1a00;
   font-size: 10px;
-  font-weight: bold;
+  font-weight: 800;
   height: 20px;
   min-width: 20px;
   border-radius: 10px;
@@ -48,7 +54,7 @@
   align-items: center;
   justify-content: center;
   padding: 0 6px;
-  box-shadow: 0 0 0 2px var(--bg);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.6), 0 0 0 2px #1a1a2e;
 }
 
 /* Toast Notification */
