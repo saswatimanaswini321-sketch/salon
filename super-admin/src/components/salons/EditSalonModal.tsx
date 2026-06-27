@@ -11,6 +11,7 @@ export interface SalonFormData {
   email: string;
   mobile: string;
   subscriptionId: string;
+  gstNumber?: string;
 }
 
 interface EditSalonModalProps {
@@ -32,6 +33,7 @@ export default function EditSalonModal({
     email: '',
     mobile: '',
     subscriptionId: '',
+    gstNumber: '',
   });
 
   useEffect(() => {
@@ -44,6 +46,7 @@ export default function EditSalonModal({
         email: '',
         mobile: '',
         subscriptionId: '',
+        gstNumber: '',
       });
     }
   }, [initialData, isOpen]);
@@ -142,6 +145,18 @@ export default function EditSalonModal({
                     onChange={handleChange}
                     className="mt-1.5 block w-full rounded-lg border border-gray-300 px-4 py-2.5 shadow-sm focus:border-[#1877f2] focus:outline-none focus:ring-1 focus:ring-[#1877f2]"
                     required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="gstNumber" className="block font-medium text-gray-700">GST Number (Optional)</label>
+                  <input
+                    type="text"
+                    id="gstNumber"
+                    name="gstNumber"
+                    value={formData.gstNumber || ''}
+                    onChange={handleChange}
+                    className="mt-1.5 block w-full rounded-lg border border-gray-300 px-4 py-2.5 shadow-sm focus:border-[#1877f2] focus:outline-none focus:ring-1 focus:ring-[#1877f2]"
                   />
                 </div>
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, UserPlus, Trash2 } from 'lucide-react';
+import { Loader2, UserPlus, Trash2, Eye, EyeOff } from 'lucide-react';
 import { isAuthenticated, getUser } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { Profile } from '@/lib/types';
@@ -13,6 +13,7 @@ export default function UsersPage() {
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', password: '', phone: '+91 ', role: 'barber' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -103,12 +104,17 @@ export default function UsersPage() {
               </div>
               <div>
                 <label className="label">Password</label>
-                <input className="input" type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Min 8 characters" minLength={8} required />
+                <div style={{ position: 'relative' }}>
+                  <input className="input" type={showPassword ? "text" : "password"} value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Min 8 characters" minLength={8} required style={{ paddingRight: '40px' }} />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
               {error && <div className="error-box">{error}</div>}
               <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)} style={{ flex: 1 }}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={saving} style={{ flex: 2 }}>
+                <button type="submit" className="btn btn-primary" disabled={saving} style={{ flex: 1 }}>
                   {saving ? <><Loader2 size={14} className="spin" /> Creating...</> : 'Create Account'}
                 </button>
               </div>
