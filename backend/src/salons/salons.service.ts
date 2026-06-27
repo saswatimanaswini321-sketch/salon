@@ -47,7 +47,7 @@ export class SalonsService {
     });
   }
 
-  async updateProfile(id: string, updateData: { name?: string; ownerName?: string; email?: string; mobile?: string; subscriptionId?: string }) {
+  async updateProfile(id: string, updateData: { name?: string; ownerName?: string; email?: string; mobile?: string; subscriptionId?: string; gstNumber?: string }) {
     try {
       return await this.prisma.salon.update({
         where: { id },

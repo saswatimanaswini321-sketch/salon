@@ -28,7 +28,7 @@ export class SalonsController {
   @Put(':id')
   async updateProfile(
     @Param('id') id: string, 
-    @Body() updateData: { name?: string; ownerName?: string; email?: string; mobile?: string; subscriptionId?: string }
+    @Body() updateData: { name?: string; ownerName?: string; email?: string; mobile?: string; subscriptionId?: string; gstNumber?: string }
   ) {
     return this.salonsService.updateProfile(id, updateData);
   }
