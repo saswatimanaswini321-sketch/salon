@@ -15,6 +15,12 @@ export default function BranchesPage() {
   const [form, setForm] = useState({ name: '', address: '' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  
+  // Salon Edit States
+  const [showSalonEdit, setShowSalonEdit] = useState(false);
+  const [salonForm, setSalonForm] = useState({ name: '', address: '', gstNo: '' });
+  const [savingSalon, setSavingSalon] = useState(false);
+  const [salonError, setSalonError] = useState('');
   const user = typeof window !== 'undefined' ? getUser() : null;
 
   useEffect(() => {
@@ -27,8 +33,28 @@ export default function BranchesPage() {
     try {
       const data = await api.admin.getSalonAndBranches();
       setSalon(data);
+      setSalonForm({
+        name: data.name || '',
+        address: data.address || '',
+        gstNo: data.gstNo || data.gstNumber || ''
+      });
     } catch { /* silently fail */ }
     finally { setLoading(false); }
+  }
+
+  async function handleUpdateSalon(e: React.FormEvent) {
+    e.preventDefault();
+    if (!salonForm.name) return;
+    
+    setSavingSalon(true);
+    setSalonError('');
+    try {
+      const updated = await api.admin.updateSalon(salonForm);
+      setSalon((prev: any) => ({ ...prev, ...updated, gstNumber: updated.gstNo || updated.gstNumber }));
+      setShowSalonEdit(false);
+    } catch (err: unknown) {
+      setSalonError(err instanceof Error ? err.message : 'Failed to update salon');
+    } finally { setSavingSalon(false); }
   }
 
   async function handleCreate(e: React.FormEvent) {
@@ -38,7 +64,7 @@ export default function BranchesPage() {
     setSaving(true);
     setError('');
     try {
-      const newBranch = await api.admin.createBranch(form);
+      const newBranch = await api.admin.addBranch(form);
       setSalon((prev: any) => ({ ...prev, branches: [...(prev.branches || []), newBranch] }));
       setShowForm(false);
       setForm({ name: '', address: '' });
@@ -59,26 +85,62 @@ export default function BranchesPage() {
         ) : salon ? (
           <>
             <div className="fu panel" style={{ padding: '24px', marginBottom: '24px', background: 'linear-gradient(145deg, var(--bg-panel), rgba(138, 43, 226, 0.05))' }}>
-              <div className="eyebrow" style={{ color: 'var(--purple-light)' }}>Salon Details</div>
-              <h2 style={{ fontSize: '24px', marginBottom: '16px' }}>{salon.name}</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Owner Name</span>
-                  <span style={{ fontSize: '14px', fontWeight: 500 }}>{salon.ownerName || 'N/A'}</span>
+                  <div className="eyebrow" style={{ color: 'var(--purple-light)' }}>Salon Details</div>
+                  <h2 style={{ fontSize: '24px', marginBottom: '16px' }}>{salon.name}</h2>
                 </div>
-                <div>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Email</span>
-                  <span style={{ fontSize: '14px', fontWeight: 500 }}>{salon.email || 'N/A'}</span>
-                </div>
-                <div>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Phone</span>
-                  <span style={{ fontSize: '14px', fontWeight: 500 }}>{salon.mobile || 'N/A'}</span>
-                </div>
-                <div>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>GST Number</span>
-                  <span style={{ fontSize: '14px', fontWeight: 500 }}>{salon.gstNumber || 'N/A'}</span>
-                </div>
+                {!showSalonEdit && (
+                  <button 
+                    onClick={() => setShowSalonEdit(true)} 
+                    className="btn btn-secondary" 
+                    style={{ fontSize: '12px', padding: '6px 12px', height: 'auto' }}
+                  >
+                    Edit Settings
+                  </button>
+                )}
               </div>
+
+              {showSalonEdit ? (
+                <form onSubmit={handleUpdateSalon} style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label className="label">Salon Name</label>
+                      <input className="input" value={salonForm.name} onChange={e => setSalonForm(f => ({ ...f, name: e.target.value }))} required />
+                    </div>
+                    <div>
+                      <label className="label">GST Number</label>
+                      <input className="input" value={salonForm.gstNo} onChange={e => setSalonForm(f => ({ ...f, gstNo: e.target.value }))} placeholder="Optional GST No" />
+                    </div>
+                  </div>
+                  {salonError && <div className="error-box">{salonError}</div>}
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button type="button" className="btn btn-secondary" onClick={() => setShowSalonEdit(false)} style={{ flex: 1 }}>Cancel</button>
+                    <button type="submit" className="btn btn-primary" disabled={savingSalon} style={{ flex: 1 }}>
+                      {savingSalon ? <><Loader2 size={14} className="spin" /> Saving...</> : 'Save Settings'}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div>
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Owner Name</span>
+                    <span style={{ fontSize: '14px', fontWeight: 500 }}>{salon.ownerName || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Email</span>
+                    <span style={{ fontSize: '14px', fontWeight: 500 }}>{salon.email || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Phone</span>
+                    <span style={{ fontSize: '14px', fontWeight: 500 }}>{salon.mobile || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>GST Number</span>
+                    <span style={{ fontSize: '14px', fontWeight: 500 }}>{salon.gstNo || salon.gstNumber || 'N/A'}</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="fu" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px' }}>
@@ -111,7 +173,7 @@ export default function BranchesPage() {
                   {error && <div className="error-box">{error}</div>}
                   <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
                     <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)} style={{ flex: 1 }}>Cancel</button>
-                    <button type="submit" className="btn btn-primary" disabled={saving} style={{ flex: 2 }}>
+                    <button type="submit" className="btn btn-primary" disabled={saving} style={{ flex: 1 }}>
                       {saving ? <><Loader2 size={14} className="spin" /> Creating...</> : 'Create Branch'}
                     </button>
                   </div>

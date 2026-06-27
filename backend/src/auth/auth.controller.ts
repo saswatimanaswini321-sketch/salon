@@ -119,8 +119,21 @@ export class AuthController {
     return this.authService.signup(dto);
   }
 
+  @Post('check-email')
+  async checkEmail(@Body() dto: ForgotPasswordDto) {
+    const exists = await this.authService.checkUserExists(dto.email);
+    if (exists) {
+      throw new BadRequestException('This email is already registered.');
+    }
+    return { available: true };
+  }
+
   @Post('forgot-password')
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    const exists = await this.authService.checkUserExists(dto.email);
+    if (!exists) {
+      throw new BadRequestException('Account not found with this email address.');
+    }
     const otp = this.mailService.generateOtp();
     this.mailService.storeOtp(dto.email, otp);
     await this.mailService.sendOtpEmail(dto.email, otp);

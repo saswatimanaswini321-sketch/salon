@@ -152,4 +152,10 @@ export class AuthService {
     if (updateError) throw new Error(updateError.message);
     return { success: true };
   }
+
+  async checkUserExists(email: string): Promise<boolean> {
+    const { data: users, error } = await this.supabase.db.auth.admin.listUsers();
+    if (error) return false;
+    return users.users.some(u => u.email === email);
+  }
 }

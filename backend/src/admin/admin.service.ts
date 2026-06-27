@@ -74,6 +74,19 @@ export class AdminService {
     return salon;
   }
 
+  async updateSalon(ownerId: string, data: { name?: string; address?: string; gstNo?: string }) {
+    const salon = await this.prisma.salon.findFirst({ where: { ownerId } });
+    if (!salon) throw new NotFoundException('Salon not found');
+    
+    return this.prisma.salon.update({
+      where: { id: salon.id },
+      data: {
+        name: data.name !== undefined ? data.name : undefined,
+        gstNumber: data.gstNo !== undefined ? data.gstNo : undefined,
+      }
+    });
+  }
+
   async addBranch(ownerId: string, data: { name: string; address?: string }) {
     const salon = await this.prisma.salon.findFirst({ where: { ownerId } });
     if (!salon) throw new NotFoundException('Salon not found');
