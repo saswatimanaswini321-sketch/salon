@@ -197,6 +197,9 @@ export default function LoginPage() {
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
+                  minLength={8}
+                  pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{8,}"
+                  title="Password must have a minimum length of 8, with 1 uppercase, 1 lowercase, 1 number, and 1 special character"
                   style={{ background: 'rgba(255,255,255,0.03)' }}
                 />
                 <button

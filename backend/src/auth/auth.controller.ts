@@ -2,14 +2,16 @@ import { Controller, Post, Body, Get, UseGuards, Request, BadRequestException } 
 import { AuthService } from './auth.service';
 import { MailService } from './mail.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { IsEmail, IsString, MinLength, IsOptional, Length } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional, Length, Matches } from 'class-validator';
 
 export class LoginDto {
   @IsEmail()
   email: string;
 
   @IsString()
-  @MinLength(6)
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/, {
+    message: 'Password must have a minimum length of 8, with 1 uppercase, 1 lowercase, 1 number, and 1 special character',
+  })
   password: string;
 }
 
@@ -45,7 +47,9 @@ export class SignupDto {
   email: string;
 
   @IsString()
-  @MinLength(6)
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/, {
+    message: 'Password must have a minimum length of 8, with 1 uppercase, 1 lowercase, 1 number, and 1 special character',
+  })
   password: string;
 
   // Staff details
@@ -63,6 +67,9 @@ export class SignupDto {
 
   @IsString()
   @IsOptional()
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/, {
+    message: 'Staff password must have a minimum length of 8, with 1 uppercase, 1 lowercase, 1 number, and 1 special character',
+  })
   staff_password?: string;
 }
 
@@ -80,7 +87,9 @@ export class ResetPasswordDto {
   otp: string;
 
   @IsString()
-  @MinLength(8)
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/, {
+    message: 'New password must have a minimum length of 8, with 1 uppercase, 1 lowercase, 1 number, and 1 special character',
+  })
   newPassword: string;
 }
 

@@ -116,7 +116,7 @@ export default function ForgotPasswordPage() {
                   <div>
                     <label className="label">New Password</label>
                     <div style={{ position: 'relative' }}>
-                      <input type={showPassword ? 'text' : 'password'} className="input" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min 8 characters" required minLength={8} style={{ background: 'rgba(255,255,255,0.03)', paddingRight: '48px' }} />
+                      <input type={showPassword ? 'text' : 'password'} className="input" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min 8 characters" required minLength={8} pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{8,}" title="Password must have a minimum length of 8, with 1 uppercase, 1 lowercase, 1 number, and 1 special character" style={{ background: 'rgba(255,255,255,0.03)', paddingRight: '48px' }} />
                       <button
                         type="button"
                         onClick={() => setShowPassword(v => !v)}

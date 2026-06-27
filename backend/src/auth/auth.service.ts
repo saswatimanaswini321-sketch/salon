@@ -114,7 +114,7 @@ export class AuthService {
     const payload = { sub: data.user.id, email: data.user.email, role: profile?.role ?? 'barber' };
     const token = this.jwt.sign(payload);
 
-    return { access_token: token, user: profile };
+    return { access_token: token, user: profile || data.user };
   }
 
   async superAdminLogin(email: string) {
